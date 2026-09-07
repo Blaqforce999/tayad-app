@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -7,11 +7,13 @@ import { router } from 'expo-router';
 import { Screen } from '@/components/shared/Screen';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
+import { deleteAccount } from '@/lib/account';
 import { fetchDeletionSummary, type DeletionSummary } from '@/lib/settings';
 import { tokens } from '@/lib/tokens';
 
 export default function SettingsDeleteScreen() {
   const [summary, setSummary] = useState<DeletionSummary | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchDeletionSummary()
@@ -28,12 +30,30 @@ export default function SettingsDeleteScreen() {
       ]
     : [];
 
-  // Real deletion needs the delete-account Edge Function (service role key to
-  // remove the auth user + cascade). That's parked with the other functions.
+  const runDelete = async () => {
+    setIsDeleting(true);
+    try {
+      // TODO(notifications): cancel scheduled reminders before deleting.
+      await deleteAccount();
+      // AuthContext sees the cleared session and the root redirects to /welcome.
+      router.replace('/welcome');
+    } catch {
+      setIsDeleting(false);
+      Alert.alert(
+        'Could not delete',
+        'Something went wrong. Try again, or email hello@tayad.app and we will remove everything.',
+      );
+    }
+  };
+
   const handleDelete = () => {
     Alert.alert(
-      'Not yet',
-      'Account deletion is being finalised. Email hello@tayad.app and we will remove everything within 48 hours.',
+      'Delete everything?',
+      'This permanently erases your account and all your data. It cannot be undone.',
+      [
+        { text: 'Keep my account', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: runDelete },
+      ],
     );
   };
 
@@ -71,13 +91,18 @@ export default function SettingsDeleteScreen() {
 
         <View style={styles.actions}>
           <Pressable
-            style={styles.deleteButton}
+            style={[styles.deleteButton, isDeleting && styles.deleteButtonBusy]}
             onPress={handleDelete}
+            disabled={isDeleting}
             accessibilityRole="button"
           >
-            <AppText variant="labelButton" color={tokens.colors.onSecondary}>
-              Delete my account
-            </AppText>
+            {isDeleting ? (
+              <ActivityIndicator color={tokens.colors.onSecondary} />
+            ) : (
+              <AppText variant="labelButton" color={tokens.colors.onSecondary}>
+                Delete my account
+              </AppText>
+            )}
           </Pressable>
           <Button label="Keep my account" variant="ghost" onPress={() => router.back()} />
         </View>
@@ -158,5 +183,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: tokens.spacing.lg,
     ...tokens.shadows.elevated,
+  },
+  deleteButtonBusy: {
+    opacity: 0.7,
   },
 });
