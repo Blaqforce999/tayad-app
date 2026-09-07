@@ -58,7 +58,12 @@ function RootStack() {
       <Stack.Screen name="forgot-password" />
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="problem" />
+      <Stack.Screen name="clarifying" />
       <Stack.Screen name="recommendation" />
+      <Stack.Screen
+        name="status"
+        options={{ presentation: 'transparentModal', animation: 'fade' }}
+      />
       <Stack.Screen name="book/[id]" />
       <Stack.Screen name="plan-setup" />
       <Stack.Screen name="reflection" />

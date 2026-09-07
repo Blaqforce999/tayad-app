@@ -39,6 +39,11 @@ export default function ProblemScreen() {
     setError(null);
     const problem = parsed.data;
 
+    if (!isOnline) {
+      router.push('/status?kind=offline-input');
+      return;
+    }
+
     // Crisis screening happens on-device, before anything is sent or stored.
     if (detectCrisis(problem).isCrisis) {
       setText('');
@@ -128,14 +133,14 @@ export default function ProblemScreen() {
 
           {!isOnline ? (
             <AppText variant="bodySmall" color={tokens.colors.secondary}>
-              You need internet to find your book. Try again when you are connected.
+              You need internet to find your book.
             </AppText>
           ) : null}
 
           <Button
             label="Find my book"
             onPress={handleSubmit}
-            disabled={!isOnline || text.trim().length === 0}
+            disabled={text.trim().length === 0}
           />
         </ScrollView>
       </KeyboardAvoidingView>

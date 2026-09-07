@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 
 import { BookCard } from '@/components/recommendation/BookCard';
 import { ProgressBar } from '@/components/reading/ProgressBar';
@@ -15,18 +15,36 @@ import { Button } from '@/components/ui/Button';
 import { hasForgivenessAvailable } from '@/lib/streak';
 import { daysRemaining, pageRangeForDay, pagesRemaining } from '@/lib/plan';
 import { checkInToday, completePlan } from '@/lib/plans';
+import { flushPendingCheckIn, queueCheckIn } from '@/lib/offline';
 import { recordStreakCheckIn } from '@/lib/streaks';
 import { setCompletion } from '@/lib/completion-store';
 import { setReflectionContext } from '@/lib/reflection-store';
 import { tokens } from '@/lib/tokens';
 
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { usePlan } from '@/hooks/usePlan';
 import { useStreak } from '@/hooks/useStreak';
 
 export default function HomeScreen() {
   const { plan, isLoading, refresh } = usePlan();
   const { streak, refresh: refreshStreak } = useStreak();
+  const { isOnline } = useNetworkStatus();
   const [isCheckingIn, setIsCheckingIn] = useState(false);
+
+  // Replay a check-in that was queued while offline.
+  useFocusEffect(
+    useCallback(() => {
+      if (!isOnline) {
+        return;
+      }
+      flushPendingCheckIn().then((flushed) => {
+        if (flushed) {
+          void refresh();
+          void refreshStreak();
+        }
+      });
+    }, [isOnline, refresh, refreshStreak]),
+  );
 
   if (isLoading) {
     return <Screen edges={['top']} style={styles.screen}><View /></Screen>;
@@ -68,6 +86,15 @@ export default function HomeScreen() {
     }
     setIsCheckingIn(true);
     const nextPagesRead = Math.min(plan.pagesRead + plan.dailyPages, plan.totalPages);
+
+    // Offline: queue it, tell the user it still counts, sync on reconnect.
+    if (!isOnline) {
+      await queueCheckIn(plan.id, nextPagesRead);
+      setIsCheckingIn(false);
+      router.push('/status?kind=offline-checkin');
+      return;
+    }
+
     try {
       await checkInToday({ planId: plan.id, pagesRead: nextPagesRead });
       const nextStreak = await recordStreakCheckIn();
@@ -90,7 +117,7 @@ export default function HomeScreen() {
         router.push('/reflection');
       }
     } catch {
-      Alert.alert('Not saved', 'That check-in did not save. Try again in a moment.');
+      router.push('/status?kind=error');
     } finally {
       setIsCheckingIn(false);
     }

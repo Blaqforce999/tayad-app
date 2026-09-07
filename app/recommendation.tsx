@@ -6,6 +6,7 @@ import { Redirect, router } from 'expo-router';
 import { BookCard } from '@/components/recommendation/BookCard';
 import { Screen } from '@/components/shared/Screen';
 import { SectionIntro } from '@/components/shared/SectionIntro';
+import { StatusSheet } from '@/components/shared/StatusSheet';
 import { AppText } from '@/components/ui/AppText';
 import { getRecommendationSession } from '@/lib/session-store';
 import { tokens } from '@/lib/tokens';
@@ -14,8 +15,22 @@ export default function RecommendationScreen() {
   const session = getRecommendationSession();
 
   // Deep-linked or reloaded without a live session — send them back to the input.
-  if (!session || session.picks.length === 0) {
+  if (!session) {
     return <Redirect href="/problem" />;
+  }
+
+  // The matcher found nothing usable in the catalogue.
+  if (session.picks.length === 0) {
+    return (
+      <Screen style={styles.emptyScreen}>
+        <StatusSheet
+          icon="search-outline"
+          title="Not the right match — yet"
+          body="I don't have the right book for this yet, but I'm growing. Check back soon."
+          primary={{ label: 'Go back', onPress: () => router.replace('/problem') }}
+        />
+      </Screen>
+    );
   }
 
   const [primary, ...rest] = session.picks;
@@ -80,6 +95,10 @@ export default function RecommendationScreen() {
 const styles = StyleSheet.create({
   screen: {
     paddingHorizontal: tokens.spacing.base,
+  },
+  emptyScreen: {
+    paddingHorizontal: 0,
+    justifyContent: 'flex-end',
   },
   content: {
     paddingTop: tokens.spacing.lg,
