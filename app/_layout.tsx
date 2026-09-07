@@ -65,6 +65,10 @@ function RootStack() {
       <Stack.Screen name="completion" />
       <Stack.Screen name="reading-history" />
       <Stack.Screen name="reflection-journal" />
+      <Stack.Screen name="settings-reminder" />
+      <Stack.Screen name="settings-account" />
+      <Stack.Screen name="settings-privacy" />
+      <Stack.Screen name="settings-delete" options={{ presentation: 'modal' }} />
       <Stack.Screen name="crisis" />
     </Stack>
   );
