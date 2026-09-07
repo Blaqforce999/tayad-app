@@ -63,6 +63,8 @@ function RootStack() {
       <Stack.Screen name="plan-setup" />
       <Stack.Screen name="reflection" />
       <Stack.Screen name="completion" />
+      <Stack.Screen name="reading-history" />
+      <Stack.Screen name="reflection-journal" />
       <Stack.Screen name="crisis" />
     </Stack>
   );
