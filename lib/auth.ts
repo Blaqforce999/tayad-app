@@ -1,0 +1,56 @@
+import type { AuthUser } from './types';
+import { supabase } from './supabase';
+
+// Thin wrappers around Supabase Auth. Screens call these; they never touch the
+// supabase client's auth methods directly, so the surface stays small and every
+// error path is handled the same way.
+
+type SignUpResult = {
+  // When the project requires email confirmation, sign-up succeeds but no
+  // session is created until the user clicks the link in their inbox.
+  needsEmailConfirmation: boolean;
+};
+
+export async function signUpWithEmail(
+  email: string,
+  password: string,
+  displayName?: string,
+): Promise<SignUpResult> {
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: displayName ? { data: { display_name: displayName } } : undefined,
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return { needsEmailConfirmation: data.session === null };
+}
+
+export async function signInWithEmail(email: string, password: string): Promise<void> {
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    throw error;
+  }
+}
+
+// signOut invalidates the session on the server, so a stolen token is useless
+// afterwards (.agents/rules/security.md).
+export async function signOut(): Promise<void> {
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    throw error;
+  }
+}
+
+export function toAuthUser(user: { id: string; email?: string } | null | undefined): AuthUser | null {
+  if (!user?.email) {
+    return null;
+  }
+
+  return { id: user.id, email: user.email };
+}
