@@ -17,8 +17,8 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { TextArea } from '@/components/ui/TextArea';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { matchBooks } from '@/lib/ai';
 import { detectCrisis } from '@/lib/crisis';
-import { stubMatch } from '@/lib/match-stub';
 import { saveRecommendation } from '@/lib/plans';
 import { setRecommendationSession } from '@/lib/session-store';
 import { tokens } from '@/lib/tokens';
@@ -53,18 +53,29 @@ export default function ProblemScreen() {
 
     setIsThinking(true);
     try {
-      const picks = await stubMatch(problem);
+      const result = await matchBooks(problem);
+
+      if (result.kind === 'clarify') {
+        setIsThinking(false);
+        router.push({ pathname: '/clarifying', params: { problem, question: result.question } });
+        return;
+      }
+
       let recommendationId: string | null = null;
       try {
-        recommendationId = await saveRecommendation(problem, picks);
+        recommendationId = await saveRecommendation(problem, result.picks);
       } catch {
         // Persisting the session is best-effort; the flow continues regardless.
       }
-      setRecommendationSession({ problemText: problem, recommendationId, picks });
+      setRecommendationSession({
+        problemText: problem,
+        recommendationId,
+        picks: result.picks,
+      });
       router.replace('/recommendation');
     } catch {
       setIsThinking(false);
-      setError('Could not reach the catalogue. Try again in a moment.');
+      setError('Could not find a book right now. Try again in a moment.');
     }
   };
 

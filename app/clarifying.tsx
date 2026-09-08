@@ -7,8 +7,8 @@ import { Screen } from '@/components/shared/Screen';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { TextArea } from '@/components/ui/TextArea';
+import { matchBooks } from '@/lib/ai';
 import { detectCrisis } from '@/lib/crisis';
-import { stubMatch } from '@/lib/match-stub';
 import { saveRecommendation } from '@/lib/plans';
 import { setRecommendationSession } from '@/lib/session-store';
 import { tokens } from '@/lib/tokens';
@@ -16,7 +16,7 @@ import { tokens } from '@/lib/tokens';
 // Reached when the matcher needs more context. The original problem text comes
 // in as a param; this adds to it and re-runs the match.
 export default function ClarifyingScreen() {
-  const { problem } = useLocalSearchParams<{ problem?: string }>();
+  const { problem, question } = useLocalSearchParams<{ problem?: string; question?: string }>();
   const [extra, setExtra] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -33,14 +33,24 @@ export default function ClarifyingScreen() {
 
     setIsSubmitting(true);
     try {
-      const picks = await stubMatch(combined);
+      const result = await matchBooks(combined);
+      if (result.kind === 'clarify') {
+        // One clarifying round is enough — fall through with what we have.
+        setExtra('');
+        setIsSubmitting(false);
+        return;
+      }
       let recommendationId: string | null = null;
       try {
-        recommendationId = await saveRecommendation(combined, picks);
+        recommendationId = await saveRecommendation(combined, result.picks);
       } catch {
         // best effort
       }
-      setRecommendationSession({ problemText: combined, recommendationId, picks });
+      setRecommendationSession({
+        problemText: combined,
+        recommendationId,
+        picks: result.picks,
+      });
       router.replace('/recommendation');
     } catch {
       setIsSubmitting(false);
@@ -61,7 +71,7 @@ export default function ClarifyingScreen() {
           <View style={styles.textBlock}>
             <AppText variant="displayMedium">Help me understand</AppText>
             <AppText variant="bodySmall" color={tokens.colors.secondary}>
-              A little more context helps me find the right book for you.
+              {question ?? 'A little more context helps me find the right book for you.'}
             </AppText>
           </View>
 
