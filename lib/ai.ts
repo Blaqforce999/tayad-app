@@ -34,10 +34,28 @@ export async function matchBooks(problemText: string): Promise<MatchResult> {
     return { kind: 'picks', picks };
   } catch (err) {
     if (__DEV__) {
-      console.warn('matchBooks: falling back to local matcher —', (err as Error).message);
+      console.warn('matchBooks: falling back to local matcher —', await describeError(err));
     }
     return { kind: 'picks', picks: await stubMatch(problemText) };
   }
+}
+
+// supabase-js wraps a non-2xx as FunctionsHttpError and hides the body on
+// `context`. Unwrap it so the real code/message shows up in the logs.
+async function describeError(err: unknown): Promise<string> {
+  const wrapped = err as { context?: Response; message?: string };
+  const response = wrapped?.context;
+
+  if (response && typeof response.text === 'function') {
+    try {
+      const body = await response.text();
+      return `HTTP ${response.status} ${body}`;
+    } catch {
+      return `HTTP ${response.status ?? '?'} (body unreadable)`;
+    }
+  }
+
+  return wrapped?.message ?? String(err);
 }
 
 // AI output is untrusted: verify every book_id against the catalogue before use.
