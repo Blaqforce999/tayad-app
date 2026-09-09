@@ -6,6 +6,7 @@ type Completion = {
   pagesRead: number;
   streakCount: number;
   isBestStreak: boolean;
+  reflectionCount: number;
 };
 
 let completion: Completion | null = null;

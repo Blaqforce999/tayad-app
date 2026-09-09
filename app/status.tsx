@@ -34,7 +34,6 @@ const CONTENT: Record<
     icon: 'checkmark-circle-outline',
     title: 'Reading saved for sync',
     body: "You're offline right now. Your check-in is queued and will sync automatically when you're back online. Today still counts.",
-    primary: { label: 'Got it', onPress: dismiss },
   },
   error: {
     icon: 'bug-outline',
@@ -45,7 +44,7 @@ const CONTENT: Record<
   },
   'no-results': {
     icon: 'search-outline',
-    title: 'Not the right match — yet',
+    title: 'Not the right match - yet',
     body: "I don't have the right book for this yet, but I'm growing. Check back soon.",
     primary: { label: 'Go back', onPress: dismiss },
   },

@@ -1,10 +1,9 @@
 import { Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 import { Screen } from '@/components/shared/Screen';
-import { SectionIntro } from '@/components/shared/SectionIntro';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { tokens } from '@/lib/tokens';
@@ -12,15 +11,15 @@ import { tokens } from '@/lib/tokens';
 type Resource = {
   label: string;
   detail: string;
-  action: string;
+  action?: string;
   url: string;
 };
 
 // Ships in the app so it works offline and instantly (.agents/rules/security.md).
 const RESOURCES: Resource[] = [
   {
-    label: '1. Call or text 988',
-    detail: 'US Suicide & Crisis Lifeline',
+    label: '1. Call 988',
+    detail: 'Suicide & Crisis Lifeline',
     action: 'Call',
     url: 'tel:988',
   },
@@ -32,27 +31,37 @@ const RESOURCES: Resource[] = [
   },
   {
     label: '3. Find local support',
-    detail: 'Befrienders Worldwide — opens in browser',
-    action: 'Open',
+    detail: 'Opens in browser',
     url: 'https://www.befrienders.org',
   },
 ];
 
 export default function CrisisScreen() {
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Pressable style={styles.back} onPress={() => router.back()} accessibilityRole="button">
-          <Ionicons name="chevron-back" size={22} color={tokens.colors.text} />
-          <AppText variant="labelButton">Back</AppText>
-        </Pressable>
+        <View style={styles.header}>
+          <Pressable
+            style={styles.back}
+            onPress={() => router.back()}
+            accessibilityRole="button"
+            accessibilityLabel="Back"
+          >
+            <Feather name="arrow-left" size={24} color={tokens.colors.text} />
+            <AppText variant="labelButton">Back</AppText>
+          </Pressable>
 
-        <SectionIntro
-          overline="A moment first"
-          title="You deserve real support right now"
-          subtitle="Tayad isn't crisis care. Please reach someone trained to help."
-          titleFace="serif"
-        />
+          <AppText variant="overline" color={tokens.colors.secondary}>
+            A moment first
+          </AppText>
+
+          <View style={styles.heroCopy}>
+            <AppText variant="displayLarge">You deserve real support right now</AppText>
+            <AppText variant="bodySmall" color={tokens.colors.secondary}>
+              Tayad isn&apos;t crisis care. Please reach someone trained to help.
+            </AppText>
+          </View>
+        </View>
 
         <View style={styles.resources}>
           <AppText variant="labelButton">Reach someone now</AppText>
@@ -65,6 +74,7 @@ export default function CrisisScreen() {
                   void Linking.openURL(resource.url);
                 }}
                 accessibilityRole="button"
+                accessibilityLabel={`${resource.label}. ${resource.detail}`}
               >
                 <View style={styles.cardText}>
                   <AppText variant="labelButton">{resource.label}</AppText>
@@ -72,9 +82,13 @@ export default function CrisisScreen() {
                     {resource.detail}
                   </AppText>
                 </View>
-                <AppText variant="labelButton" color={tokens.colors.primaryPressed}>
-                  {resource.action}
-                </AppText>
+                {resource.action ? (
+                  <AppText variant="labelButton" color={tokens.colors.primaryPressed}>
+                    {resource.action}
+                  </AppText>
+                ) : (
+                  <Feather name="arrow-right" size={24} color={tokens.colors.text} />
+                )}
               </Pressable>
             ))}
           </View>
@@ -94,14 +108,20 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingTop: tokens.spacing.xl,
-    paddingBottom: tokens.spacing.lg,
+    paddingBottom: tokens.spacing.xl,
     gap: tokens.spacing.xl,
+  },
+  header: {
+    gap: tokens.spacing.base,
   },
   back: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: tokens.spacing.sm,
     alignSelf: 'flex-start',
+  },
+  heroCopy: {
+    gap: tokens.spacing.sm,
   },
   resources: {
     gap: tokens.spacing.base,
@@ -124,6 +144,6 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.sm,
   },
   footer: {
-    paddingVertical: tokens.spacing.sm,
+    paddingVertical: tokens.spacing.base,
   },
 });

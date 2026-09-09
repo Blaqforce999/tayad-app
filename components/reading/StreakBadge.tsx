@@ -70,20 +70,12 @@ export function StreakBadge({
       </View>
 
       <View style={styles.badge}>
-        <AppText variant="displayLarge" style={styles.count}>
-          {count}
-        </AppText>
+        <AppText style={styles.count}>{count}</AppText>
       </View>
 
-      <AppText variant="labelSmall" color={tokens.colors.secondary} style={styles.label}>
-        {label}
+      <AppText style={styles.label}>
+        {forgivenessAvailable ? 'One free pass left.' : label}
       </AppText>
-
-      {forgivenessAvailable ? (
-        <AppText variant="metadata" color={tokens.colors.secondary}>
-          One free pass left
-        </AppText>
-      ) : null}
     </View>
   );
 }
@@ -109,10 +101,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // Figma: Manrope Bold 28 (not the serif display token). Bold -> SemiBold.
   count: {
+    fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.displayLarge.size,
+    color: tokens.colors.text,
     letterSpacing: 0,
   },
+  // Figma caption: Manrope Regular 13, no tracking.
   label: {
+    fontFamily: tokens.fonts.bodyLarge.family,
+    fontSize: tokens.fonts.labelSmall.size,
+    color: tokens.colors.secondary,
     letterSpacing: 0,
   },
 });

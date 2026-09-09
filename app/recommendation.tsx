@@ -1,6 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 
 import { BookCard } from '@/components/recommendation/BookCard';
@@ -22,10 +21,10 @@ export default function RecommendationScreen() {
   // The matcher found nothing usable in the catalogue.
   if (session.picks.length === 0) {
     return (
-      <Screen style={styles.emptyScreen}>
+      <Screen style={styles.emptyScreen} backgroundColor={tokens.colors.surfaceContainer}>
         <StatusSheet
           icon="search-outline"
-          title="Not the right match — yet"
+          title="Not the right match - yet"
           body="I don't have the right book for this yet, but I'm growing. Check back soon."
           primary={{ label: 'Go back', onPress: () => router.replace('/problem') }}
         />
@@ -36,7 +35,7 @@ export default function RecommendationScreen() {
   const [primary, ...rest] = session.picks;
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -45,10 +44,10 @@ export default function RecommendationScreen() {
           style={styles.back}
           onPress={() => router.back()}
           accessibilityRole="button"
+          accessibilityLabel="Back"
         >
-          <Ionicons name="chevron-back" size={20} color={tokens.colors.secondary} />
           <AppText variant="bodySmall" color={tokens.colors.secondary}>
-            Back
+            ← Back
           </AppText>
         </Pressable>
 
@@ -57,7 +56,10 @@ export default function RecommendationScreen() {
           title="Three books. One place to begin."
           subtitle="Chosen for what you shared. Tap any to see where to read it."
           titleFace="serif"
+          size="medium"
         />
+
+        <View style={styles.divider} />
 
         <BookCard
           book={primary.book}
@@ -106,10 +108,13 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.base,
   },
   back: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.xs,
     alignSelf: 'flex-start',
+    paddingVertical: tokens.spacing.sm,
+    paddingRight: tokens.spacing.md,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: tokens.colors.surfaceContainerHigh,
   },
   alsoFor: {
     gap: tokens.spacing.md,
@@ -121,7 +126,7 @@ const styles = StyleSheet.create({
   },
   line: {
     flex: 1,
-    height: StyleSheet.hairlineWidth,
+    height: 1,
     backgroundColor: tokens.colors.surfaceContainerHigh,
   },
 });

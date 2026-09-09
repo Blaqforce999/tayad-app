@@ -9,12 +9,12 @@ import { ProgressBar } from '@/components/reading/ProgressBar';
 import { StreakBadge } from '@/components/reading/StreakBadge';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Screen } from '@/components/shared/Screen';
-import { SectionIntro } from '@/components/shared/SectionIntro';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { hasForgivenessAvailable } from '@/lib/streak';
 import { daysRemaining, pageRangeForDay, pagesRemaining } from '@/lib/plan';
 import { checkInToday, completePlan } from '@/lib/plans';
+import { fetchReflections } from '@/lib/progress';
 import { flushPending, queueCheckIn } from '@/lib/offline';
 import { recordStreakCheckIn } from '@/lib/streaks';
 import { setCompletion } from '@/lib/completion-store';
@@ -47,31 +47,32 @@ export default function HomeScreen() {
   );
 
   if (isLoading) {
-    return <Screen edges={['top']} style={styles.screen}><View /></Screen>;
+    return (
+      <Screen edges={['top']} style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
+        <View />
+      </Screen>
+    );
   }
 
   // --- No active plan: the invitation -------------------------------------
   if (!plan) {
     return (
-      <Screen edges={['top']} style={styles.screen}>
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-          <SectionIntro
-            overline="Today"
-            title="Your next chapter starts with the truth."
-            subtitle="Tell us what feels stuck, and we'll find a book worth finishing."
-            titleFace="serif"
-          />
-          <EmptyState
-            title="No book selected yet"
-            body="Your next read is waiting."
-          />
+      <Screen edges={['top']} style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
+        <ScrollView contentContainerStyle={styles.invitationContent} showsVerticalScrollIndicator={false}>
+          <View style={styles.invitationCopy}>
+            <AppText variant="displayMedium">Your next chapter starts with the truth.</AppText>
+            <AppText variant="bodyLarge" color={tokens.colors.secondary}>
+              Tell us what feels stuck, and we&apos;ll find a book worth finishing.
+            </AppText>
+          </View>
+          <EmptyState icon="book" title="No book selected yet" body="Your next read is waiting." />
           <Button label="Find my book" onPress={() => router.push('/problem')} />
         </ScrollView>
       </Screen>
     );
   }
 
-  // --- Active plan: today's reading + check-in ---------------------------
+  // --- Active plan -------------------------------------------------------
   const dayNumber = Math.min(
     Math.floor(plan.pagesRead / plan.dailyPages) + 1,
     plan.targetDays,
@@ -105,11 +106,15 @@ export default function HomeScreen() {
       await Promise.all([refresh(), refreshStreak()]);
 
       if (finished) {
+        const reflectionCount = await fetchReflections()
+          .then((rows) => rows.length)
+          .catch(() => 0);
         setCompletion({
           bookTitle: plan.book.title,
           pagesRead: nextPagesRead,
           streakCount: nextStreak.count,
           isBestStreak: nextStreak.count >= nextStreak.longest,
+          reflectionCount,
         });
         router.replace('/completion');
       } else {
@@ -123,8 +128,45 @@ export default function HomeScreen() {
     }
   };
 
+  const forgivenessAvailable = streak.count > 0 && hasForgivenessAvailable(streak);
+
+  // --- Active plan, already checked in today ----------------------------
+  if (plan.checkedInToday) {
+    return (
+      <Screen edges={['top']} style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
+        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+          <View style={styles.successHeader}>
+            <AppText variant="overline" color={tokens.colors.secondary}>
+              Reading done for today
+            </AppText>
+            <AppText style={styles.successTitle}>You showed up today.</AppText>
+          </View>
+
+          <StreakBadge count={streak.count} forgivenessAvailable={forgivenessAvailable} style={styles.centeredBadge} />
+
+          <View style={styles.summaryCard}>
+            <View style={styles.progressRow}>
+              <AppText variant="bodySmall" color={tokens.colors.secondary}>
+                Today&apos;s pages
+              </AppText>
+              <AppText variant="bodySmall" style={styles.progressValueStrong}>
+                {plan.dailyPages} / {plan.dailyPages} complete
+              </AppText>
+            </View>
+            <ProgressBar value={1} />
+          </View>
+
+          <AppText variant="bodySmall" color={tokens.colors.secondary} style={styles.tomorrow}>
+            See you tomorrow · Pages {range.startPage}-{range.endPage}
+          </AppText>
+        </ScrollView>
+      </Screen>
+    );
+  }
+
+  // --- Active plan, today's reading + check-in --------------------------
   return (
-    <Screen edges={['top']} style={styles.screen}>
+    <Screen edges={['top']} style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.headerRow}>
           <View style={styles.todayInfo}>
@@ -132,15 +174,10 @@ export default function HomeScreen() {
               Today
             </AppText>
             <AppText variant="bodyLarge" style={styles.todayPages}>
-              {plan.checkedInToday
-                ? 'Done for today'
-                : `Pages ${range.startPage}–${range.endPage}`}
+              Pages {range.startPage}-{range.endPage}
             </AppText>
           </View>
-          <StreakBadge
-            count={streak.count}
-            forgivenessAvailable={streak.count > 0 && hasForgivenessAvailable(streak)}
-          />
+          <StreakBadge count={streak.count} forgivenessAvailable={forgivenessAvailable} />
         </View>
 
         <BookCard
@@ -155,22 +192,17 @@ export default function HomeScreen() {
             <AppText variant="bodySmall" style={styles.progressLabel}>
               Reading progress
             </AppText>
-            <AppText variant="labelSmall" color={tokens.colors.secondary}>
+            <AppText style={styles.progressValue}>
               {plan.pagesRead} / {plan.totalPages} pages
             </AppText>
           </View>
           <ProgressBar value={plan.totalPages ? plan.pagesRead / plan.totalPages : 0} />
-          <AppText variant="labelSmall" color={tokens.colors.secondary}>
+          <AppText style={styles.progressValue}>
             {left} pages left · ~{paceDays} days at this pace
           </AppText>
         </View>
 
-        <Button
-          label={plan.checkedInToday ? 'Checked in for today' : 'Done reading for today'}
-          onPress={handleDone}
-          loading={isCheckingIn}
-          disabled={plan.checkedInToday}
-        />
+        <Button label="Done reading for today" onPress={handleDone} loading={isCheckingIn} />
 
         <Pressable
           style={styles.updateRow}
@@ -191,23 +223,54 @@ const styles = StyleSheet.create({
   screen: {
     paddingHorizontal: tokens.spacing.base,
   },
+  // Active / checked-in: content gap 16, py 16 top (p16 in Figma).
   content: {
     flexGrow: 1,
-    paddingTop: tokens.spacing.lg,
+    paddingTop: tokens.spacing.base,
     paddingBottom: tokens.spacing.xl,
     gap: tokens.spacing.base,
   },
+  // No-plan invitation: gap 24, pt 24, pb 32.
+  invitationContent: {
+    flexGrow: 1,
+    paddingTop: tokens.spacing.lg,
+    paddingBottom: tokens.spacing.xl,
+    gap: tokens.spacing.lg,
+  },
+  invitationCopy: {
+    gap: tokens.spacing.sm,
+  },
   headerRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'space-between',
   },
   todayInfo: {
     gap: tokens.spacing.xs,
-    paddingTop: tokens.spacing.sm,
   },
+  // Figma "Pages 46-60": Manrope SemiBold 16.
   todayPages: {
     fontFamily: tokens.fonts.labelButton.family,
+  },
+  successHeader: {
+    gap: tokens.spacing.sm,
+  },
+  // Figma: Manrope Bold 24 / 1.15 (Bold -> SemiBold).
+  successTitle: {
+    fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.displayMedium.size,
+    lineHeight: tokens.fonts.displayMedium.size * 1.15,
+    letterSpacing: 0,
+    color: tokens.colors.text,
+  },
+  centeredBadge: {
+    alignSelf: 'center',
+  },
+  summaryCard: {
+    backgroundColor: tokens.colors.surfaceContainerHigh,
+    borderRadius: tokens.radii.card,
+    padding: tokens.spacing.base,
+    gap: tokens.spacing.sm,
   },
   progressSection: {
     gap: tokens.spacing.sm,
@@ -217,8 +280,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  // Figma "Reading progress": Manrope SemiBold 14.
   progressLabel: {
     fontFamily: tokens.fonts.labelButton.family,
+  },
+  progressValueStrong: {
+    fontFamily: tokens.fonts.labelButton.family,
+    color: tokens.colors.text,
+  },
+  // Figma trailing / caption values: Manrope Regular 13, secondary.
+  progressValue: {
+    fontFamily: tokens.fonts.bodySmall.family,
+    fontSize: tokens.fonts.labelSmall.size,
+    color: tokens.colors.secondary,
+  },
+  tomorrow: {
+    textAlign: 'center',
   },
   updateRow: {
     flexDirection: 'row',

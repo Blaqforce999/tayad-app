@@ -50,7 +50,7 @@ export default function SignInScreen() {
   };
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -164,13 +164,12 @@ const styles = StyleSheet.create({
   },
   forgotRow: {
     alignSelf: 'flex-end',
-    // Pull up against the 24px stack gap so it reads as attached to the form.
-    marginTop: -tokens.spacing.md,
   },
+  // Figma: Manrope SemiBold 14, secondary, no tracking.
   forgotText: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: tokens.fonts.bodySmall.size,
-    letterSpacing: tokens.fonts.bodySmall.letterSpacing,
+    letterSpacing: 0,
     color: tokens.colors.secondary,
   },
   dividerRow: {
@@ -180,7 +179,7 @@ const styles = StyleSheet.create({
   },
   dividerLine: {
     flex: 1,
-    height: StyleSheet.hairlineWidth,
+    height: 1,
     backgroundColor: tokens.colors.surfaceContainerHigh,
   },
   socialStack: {

@@ -83,7 +83,9 @@ export function Button({
           {loading ? (
             <ActivityIndicator color={tokens.colors.text} />
           ) : (
-            <AppText variant="labelButton">{label}</AppText>
+            <AppText variant="labelButton" style={styles.label}>
+              {label}
+            </AppText>
           )}
         </Animated.View>
       )}
@@ -92,12 +94,20 @@ export function Button({
 }
 
 const styles = StyleSheet.create({
+  // Figma Button: min-h 48, px 16, py 12, pill. The vertical padding also gives
+  // descenders ("Sign out", "Log in") room so the centred label never clips.
   base: {
     minHeight: 48,
     borderRadius: tokens.radii.pill,
-    paddingHorizontal: tokens.spacing.lg,
+    paddingHorizontal: tokens.spacing.base,
+    paddingVertical: tokens.spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  label: {
+    textAlign: 'center',
+    // Explicit, roomy line box: RN clips descenders ("g", "y") on a tight box.
+    lineHeight: 22,
   },
   inactive: {
     opacity: 0.38,

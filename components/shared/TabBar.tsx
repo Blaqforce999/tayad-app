@@ -1,16 +1,20 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { Ionicons } from '@expo/vector-icons';
 
 import { tokens } from '@/lib/tokens';
 
-import { AppText } from '@/components/ui/AppText';
+import HomeActive from '@/assets/icons/nav/home-active.svg';
+import HomeInactive from '@/assets/icons/nav/home-inactive.svg';
+import ProgressActive from '@/assets/icons/nav/progress-active.svg';
+import ProgressInactive from '@/assets/icons/nav/progress-inactive.svg';
+import SettingsActive from '@/assets/icons/nav/settings-active.svg';
+import SettingsInactive from '@/assets/icons/nav/settings-inactive.svg';
 
-// The Figma bottom nav: amber-tinted surface, rounded top corners, an icon in a
-// 40px hit area over a label. Active = amber (primary-pressed) + filled icon;
-// inactive = dust + outline icon.
-type IconName = keyof typeof Ionicons.glyphMap;
+// Figma bottom nav (component 218:150483): white surface, a soft drop shadow,
+// no rounded corners. Each tab is a 22px icon over an 11px label. Active =
+// filled icon + deep-ink SemiBold label; inactive = outline icon + brown
+// Regular label.
+type IconPair = { active: typeof HomeActive; inactive: typeof HomeActive };
 
 // Minimal shape of what Expo Router hands a custom `tabBar` — kept local so the
 // component doesn't couple to a specific @react-navigation types version.
@@ -30,17 +34,22 @@ type TabBarProps = {
   };
 };
 
-const ICONS: Record<string, { active: IconName; inactive: IconName }> = {
-  index: { active: 'home', inactive: 'home-outline' },
-  progress: { active: 'bar-chart', inactive: 'bar-chart-outline' },
-  settings: { active: 'settings', inactive: 'settings-outline' },
+const ICONS: Record<string, IconPair> = {
+  index: { active: HomeActive, inactive: HomeInactive },
+  progress: { active: ProgressActive, inactive: ProgressInactive },
+  settings: { active: SettingsActive, inactive: SettingsInactive },
 };
 
 export function TabBar({ state, descriptors, navigation }: TabBarProps) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.bar, { paddingBottom: Math.max(insets.bottom, tokens.spacing.md) }]}>
+    <View
+      style={[
+        styles.bar,
+        { paddingBottom: Math.max(insets.bottom, tokens.spacing.md) },
+      ]}
+    >
       {state.routes.map((route, index) => {
         const isFocused = state.index === index;
         const { options } = descriptors[route.key];
@@ -49,7 +58,7 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
             ? options.tabBarLabel
             : (options.title ?? route.name);
         const icons = ICONS[route.name] ?? ICONS.index;
-        const color = isFocused ? tokens.colors.primaryPressed : tokens.colors.textMuted;
+        const Icon = isFocused ? icons.active : icons.inactive;
 
         const onPress = () => {
           const event = navigation.emit({
@@ -71,16 +80,10 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
             accessibilityState={{ selected: isFocused }}
             accessibilityLabel={label}
           >
-            <View style={styles.iconSlot}>
-              <Ionicons
-                name={isFocused ? icons.active : icons.inactive}
-                size={24}
-                color={color}
-              />
-            </View>
-            <AppText variant="metadata" color={color} style={styles.label}>
+            <Icon width={22} height={22} />
+            <Text style={[styles.label, isFocused ? styles.labelActive : styles.labelInactive]}>
               {label}
-            </AppText>
+            </Text>
           </Pressable>
         );
       })}
@@ -91,27 +94,37 @@ export function TabBar({ state, descriptors, navigation }: TabBarProps) {
 const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    gap: tokens.spacing.lg,
-    backgroundColor: tokens.colors.navSurface,
-    borderTopLeftRadius: tokens.spacing.md,
-    borderTopRightRadius: tokens.spacing.md,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: tokens.colors.surfaceRaised,
+    paddingHorizontal: tokens.spacing.xl,
     paddingTop: tokens.spacing.md,
-    paddingHorizontal: tokens.spacing.lg,
+    // Figma Shadow: 0 2 6 rgba(59,47,36,0.06).
+    shadowColor: tokens.colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 8,
   },
   tab: {
-    width: 82,
-    alignItems: 'center',
-    gap: tokens.spacing.xs / 2,
-  },
-  iconSlot: {
-    width: 40,
-    height: 40,
+    width: 72,
+    minHeight: 44,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: tokens.spacing.xs,
+    overflow: 'hidden',
   },
   label: {
+    fontSize: tokens.fonts.overline.size,
     letterSpacing: 0,
     textAlign: 'center',
+  },
+  labelActive: {
+    fontFamily: tokens.fonts.labelButton.family, // Manrope SemiBold
+    color: tokens.colors.text,
+  },
+  labelInactive: {
+    fontFamily: tokens.fonts.bodyLarge.family, // Manrope Regular
+    color: tokens.colors.secondary,
   },
 });

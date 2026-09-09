@@ -4,7 +4,6 @@ import { Redirect, router } from 'expo-router';
 
 import { StreakBadge } from '@/components/reading/StreakBadge';
 import { Screen } from '@/components/shared/Screen';
-import { SectionIntro } from '@/components/shared/SectionIntro';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { clearCompletion, getCompletion } from '@/lib/completion-store';
@@ -18,8 +17,9 @@ export default function CompletionScreen() {
   }
 
   const stats = [
-    { value: String(completion.streakCount), label: 'day streak' },
+    { value: String(completion.streakCount), label: 'days count' },
     { value: String(completion.pagesRead), label: 'pages read' },
+    { value: String(completion.reflectionCount), label: 'reflections' },
   ];
 
   const restart = () => {
@@ -28,29 +28,30 @@ export default function CompletionScreen() {
   };
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <SectionIntro
-          overline="Book complete 🎉"
-          title="You stayed with it."
-          subtitle={`You finished ${completion.bookTitle} — and kept the promise you made to yourself.`}
-          titleFace="serif"
-        />
+        <AppText variant="overline" color={tokens.colors.secondary}>
+          Book complete 🎉
+        </AppText>
 
-        <View style={styles.badgeWrap}>
-          <StreakBadge
-            count={completion.streakCount}
-            label={completion.isBestStreak ? 'day streak · best yet' : 'day streak'}
-          />
+        <View style={styles.headline}>
+          <AppText variant="displayLarge">You stayed with it.</AppText>
+          <AppText variant="bodyLarge" color={tokens.colors.secondary}>
+            You finished {completion.bookTitle} - and kept the promise you made to yourself.
+          </AppText>
         </View>
+
+        <StreakBadge
+          count={completion.streakCount}
+          label={completion.isBestStreak ? 'day streak - best yet' : 'day streak'}
+          style={styles.badge}
+        />
 
         <View style={styles.statsRow}>
           {stats.map((stat) => (
             <View key={stat.label} style={styles.stat}>
-              <AppText variant="displayMedium">{stat.value}</AppText>
-              <AppText variant="labelSmall" color={tokens.colors.secondary}>
-                {stat.label}
-              </AppText>
+              <AppText style={styles.statValue}>{stat.value}</AppText>
+              <AppText style={styles.statLabel}>{stat.label}</AppText>
             </View>
           ))}
         </View>
@@ -66,13 +67,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: tokens.spacing.base,
   },
   content: {
-    paddingTop: tokens.spacing.xl,
+    paddingTop: tokens.spacing.lg,
     paddingBottom: tokens.spacing.xl,
-    gap: tokens.spacing.lg,
+    gap: tokens.spacing.base,
   },
-  badgeWrap: {
-    alignItems: 'center',
-    paddingVertical: tokens.spacing.base,
+  headline: {
+    gap: tokens.spacing.sm,
+  },
+  badge: {
+    alignSelf: 'center',
   },
   statsRow: {
     flexDirection: 'row',
@@ -84,5 +87,17 @@ const styles = StyleSheet.create({
     borderRadius: tokens.radii.card,
     padding: tokens.spacing.base,
     gap: tokens.spacing.xs,
+  },
+  // Figma: Manrope Bold 24 (Bold -> SemiBold), not the serif token.
+  statValue: {
+    fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.displayMedium.size,
+    letterSpacing: 0,
+    color: tokens.colors.text,
+  },
+  statLabel: {
+    fontFamily: tokens.fonts.bodySmall.family,
+    fontSize: tokens.fonts.labelSmall.size,
+    color: tokens.colors.secondary,
   },
 });

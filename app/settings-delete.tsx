@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Pressable, StyleSheet, View } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 import { Screen } from '@/components/shared/Screen';
 import { AppText } from '@/components/ui/AppText';
-import { Button } from '@/components/ui/Button';
 import { deleteAccount } from '@/lib/account';
 import { fetchDeletionSummary, type DeletionSummary } from '@/lib/settings';
 import { tokens } from '@/lib/tokens';
@@ -33,7 +32,6 @@ export default function SettingsDeleteScreen() {
   const runDelete = async () => {
     setIsDeleting(true);
     try {
-      // TODO(notifications): cancel scheduled reminders before deleting.
       await deleteAccount();
       // AuthContext sees the cleared session and the root redirects to /welcome.
       router.replace('/welcome');
@@ -58,21 +56,17 @@ export default function SettingsDeleteScreen() {
   };
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceRaised}>
       <View style={styles.sheet}>
         <View style={styles.handle} />
 
         <View style={styles.icon}>
-          <Ionicons name="trash-outline" size={24} color={tokens.colors.secondary} />
+          <Feather name="trash-2" size={24} color={tokens.colors.error} />
         </View>
 
         <View style={styles.textBlock}>
-          <AppText variant="displayMedium" style={styles.center}>
-            Delete everything?
-          </AppText>
-          <AppText variant="bodySmall" color={tokens.colors.secondary} style={styles.center}>
-            This cannot be undone. Here's exactly what goes:
-          </AppText>
+          <AppText style={styles.title}>Delete everything?</AppText>
+          <AppText style={styles.copy}>This cannot be undone. Here&apos;s exactly what goes:</AppText>
         </View>
 
         <View style={styles.summary}>
@@ -81,9 +75,7 @@ export default function SettingsDeleteScreen() {
               {index > 0 ? <View style={styles.divider} /> : null}
               <View style={styles.summaryLine}>
                 <AppText style={styles.summaryValue}>{line.value}</AppText>
-                <AppText variant="bodySmall" color={tokens.colors.textMuted} style={styles.summaryLabel}>
-                  {line.label}
-                </AppText>
+                <AppText style={styles.summaryLabel}>{line.label}</AppText>
               </View>
             </View>
           ))}
@@ -99,12 +91,16 @@ export default function SettingsDeleteScreen() {
             {isDeleting ? (
               <ActivityIndicator color={tokens.colors.onSecondary} />
             ) : (
-              <AppText variant="labelButton" color={tokens.colors.onSecondary}>
-                Delete my account
-              </AppText>
+              <AppText style={styles.deleteLabel}>Delete my account</AppText>
             )}
           </Pressable>
-          <Button label="Keep my account" variant="ghost" onPress={() => router.back()} />
+          <Pressable
+            style={styles.cancelButton}
+            onPress={() => router.back()}
+            accessibilityRole="button"
+          >
+            <AppText variant="labelButton">Keep my account</AppText>
+          </Pressable>
         </View>
       </View>
     </Screen>
@@ -116,10 +112,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: tokens.spacing.base,
   },
   sheet: {
-    flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     gap: tokens.spacing.base,
+    paddingTop: tokens.spacing.md,
   },
   handle: {
     width: 40,
@@ -139,7 +134,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: tokens.spacing.sm,
   },
-  center: {
+  // Figma: Instrument Serif 26 / 1.1.
+  title: {
+    fontFamily: tokens.fonts.displayMedium.family,
+    fontSize: 26,
+    lineHeight: 26 * 1.1,
+    letterSpacing: -0.26,
+    color: tokens.colors.text,
+    textAlign: 'center',
+  },
+  // Figma: Manrope Regular 14 / 1.6, secondary.
+  copy: {
+    fontFamily: tokens.fonts.bodySmall.family,
+    fontSize: tokens.fonts.bodySmall.size,
+    lineHeight: tokens.fonts.bodySmall.size * 1.6,
+    color: tokens.colors.secondary,
     textAlign: 'center',
   },
   summary: {
@@ -155,23 +164,29 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.base,
     paddingVertical: tokens.spacing.md,
   },
+  // Figma: Manrope Bold 20 (Bold -> SemiBold).
   summaryValue: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: 20,
+    letterSpacing: 0,
     color: tokens.colors.text,
   },
+  // Figma: Manrope Medium 14 / 1.4, dust.
   summaryLabel: {
     flex: 1,
+    fontFamily: tokens.fonts.labelSmall.family,
+    fontSize: tokens.fonts.bodySmall.size,
+    lineHeight: tokens.fonts.bodySmall.size * 1.4,
+    color: tokens.colors.textMuted,
   },
   divider: {
-    height: StyleSheet.hairlineWidth,
+    height: 1,
     backgroundColor: tokens.colors.surfaceContainerHigh,
     opacity: 0.5,
   },
   actions: {
     alignSelf: 'stretch',
     gap: tokens.spacing.sm,
-    marginTop: tokens.spacing.sm,
   },
   // One-off: an error-filled destructive-confirmation button (sanctioned use of
   // the error colour per design-system.md), not a general Button variant.
@@ -182,9 +197,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: tokens.spacing.lg,
+    paddingVertical: tokens.spacing.base,
     ...tokens.shadows.elevated,
   },
   deleteButtonBusy: {
     opacity: 0.7,
+  },
+  deleteLabel: {
+    fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.labelButton.size,
+    lineHeight: 22,
+    letterSpacing: tokens.fonts.labelButton.letterSpacing,
+    color: tokens.colors.onSecondary,
+  },
+  cancelButton: {
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: tokens.spacing.base,
   },
 });

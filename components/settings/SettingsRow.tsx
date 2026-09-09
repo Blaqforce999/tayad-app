@@ -1,13 +1,13 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 
 import { tokens } from '@/lib/tokens';
 
 import { AppText } from '@/components/ui/AppText';
 
 type SettingsRowProps = {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof Feather.glyphMap;
   title: string;
   subtitle?: string;
   onPress: () => void;
@@ -17,7 +17,7 @@ export function SettingsRow({ icon, title, subtitle, onPress }: SettingsRowProps
   return (
     <Pressable style={styles.row} onPress={onPress} accessibilityRole="button">
       <View style={styles.iconWell}>
-        <Ionicons name={icon} size={20} color={tokens.colors.secondary} />
+        <Feather name={icon} size={20} color={tokens.colors.secondary} />
       </View>
       <View style={styles.text}>
         <AppText style={styles.title}>{title}</AppText>
@@ -25,7 +25,7 @@ export function SettingsRow({ icon, title, subtitle, onPress }: SettingsRowProps
           <AppText style={styles.subtitle}>{subtitle}</AppText>
         ) : null}
       </View>
-      <Ionicons name="chevron-forward" size={18} color={tokens.colors.textMuted} />
+      <Feather name="arrow-right" size={18} color={tokens.colors.textMuted} />
     </Pressable>
   );
 }
@@ -70,20 +70,26 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2,
   },
-  // Figma: 15px SemiBold / 13px Medium — off the fixed type scale, composed here.
+  // Figma: 15px SemiBold / 1.35 — off the fixed type scale, composed here.
   title: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: 15,
+    lineHeight: 15 * 1.35,
+    letterSpacing: 0,
     color: tokens.colors.text,
   },
+  // Figma: 13px Manrope Medium / 1.4.
   subtitle: {
     fontFamily: tokens.fonts.labelSmall.family,
     fontSize: tokens.fonts.labelSmall.size,
+    lineHeight: tokens.fonts.labelSmall.size * 1.4,
+    letterSpacing: 0,
     color: tokens.colors.secondary,
   },
+  // Figma: 1px, surface-container-high, inset 40px on the right.
   divider: {
-    height: StyleSheet.hairlineWidth,
-    marginLeft: tokens.spacing.base,
+    height: 1,
+    marginRight: 40,
     backgroundColor: tokens.colors.surfaceContainerHigh,
   },
 });

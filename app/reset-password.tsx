@@ -23,7 +23,7 @@ export default function ResetPasswordScreen() {
 
   if (!code) {
     return (
-      <Screen style={styles.screen}>
+      <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
         <View style={styles.expired}>
           <Wordmark size="sm" />
           <View style={styles.headingGroup}>
@@ -55,7 +55,7 @@ export default function ResetPasswordScreen() {
   };
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

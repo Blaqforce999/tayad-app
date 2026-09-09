@@ -13,7 +13,7 @@ export function ProgressBar({ value, style }: ProgressBarProps) {
 
   return (
     <View style={[styles.track, style]}>
-      {/* Sage is the progress colour (design system) — deliberately not amber. */}
+      {/* Figma ProgressBar fill = on-surface-muted (#9b9389). */}
       <View style={[styles.fill, { width: pct }]} />
     </View>
   );
@@ -29,6 +29,6 @@ const styles = StyleSheet.create({
   fill: {
     height: '100%',
     borderRadius: tokens.radii.pill,
-    backgroundColor: tokens.colors.tertiary,
+    backgroundColor: tokens.colors.textMuted,
   },
 });

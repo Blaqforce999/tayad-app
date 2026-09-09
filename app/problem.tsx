@@ -81,7 +81,7 @@ export default function ProblemScreen() {
 
   if (isThinking) {
     return (
-      <Screen style={styles.screen}>
+      <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
         <View style={styles.content}>
           <SectionIntro
             overline="Finding your match"
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.lg,
   },
   divider: {
-    height: StyleSheet.hairlineWidth,
+    height: 1,
     backgroundColor: tokens.colors.surfaceContainerHigh,
   },
   spinner: {

@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 
 import { Screen } from '@/components/shared/Screen';
+import { BackHeader } from '@/components/shared/BackHeader';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -49,12 +49,7 @@ export default function UpdatePagesScreen() {
 
   return (
     <Screen style={styles.screen}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back" hitSlop={8}>
-          <Ionicons name="chevron-back" size={24} color={tokens.colors.text} />
-        </Pressable>
-        <AppText variant="labelButton">Update page number</AppText>
-      </View>
+      <BackHeader title="Update page number" />
 
       <KeyboardAvoidingView
         style={styles.flex}
@@ -94,13 +89,6 @@ export default function UpdatePagesScreen() {
 
 const styles = StyleSheet.create({
   screen: { paddingHorizontal: tokens.spacing.base },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.md,
-    paddingTop: tokens.spacing.xs,
-    paddingBottom: tokens.spacing.md,
-  },
   flex: { flex: 1 },
   body: { flex: 1, gap: tokens.spacing.lg },
   lead: { gap: tokens.spacing.sm },

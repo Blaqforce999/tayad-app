@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 
 import { Screen } from '@/components/shared/Screen';
+import { BackHeader } from '@/components/shared/BackHeader';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import {
@@ -49,12 +50,7 @@ export default function DailyGoalScreen() {
 
   return (
     <Screen style={styles.screen}>
-      <View style={styles.header}>
-        <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back" hitSlop={8}>
-          <Ionicons name="chevron-back" size={24} color={tokens.colors.text} />
-        </Pressable>
-        <AppText variant="labelButton">Daily page goal</AppText>
-      </View>
+      <BackHeader title="Daily page goal" />
 
       <View style={styles.body}>
         <View style={styles.lead}>
@@ -65,10 +61,8 @@ export default function DailyGoalScreen() {
         </View>
 
         <View style={styles.card}>
-          <AppText variant="labelSmall" color={tokens.colors.secondary} style={styles.cardLabel}>
-            DAILY GOAL
-          </AppText>
-          <AppText variant="displayLarge">{dailyPages} pages</AppText>
+          <AppText style={styles.cardLabel}>Daily goal</AppText>
+          <AppText style={styles.goalValue}>{dailyPages} pages</AppText>
           <View style={styles.stepper}>
             <Pressable
               style={[styles.stepButton, dailyPages <= MIN_DAILY_PAGES && styles.stepDisabled]}
@@ -117,13 +111,6 @@ export default function DailyGoalScreen() {
 
 const styles = StyleSheet.create({
   screen: { paddingHorizontal: tokens.spacing.base },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.md,
-    paddingTop: tokens.spacing.xs,
-    paddingBottom: tokens.spacing.md,
-  },
   body: { flex: 1, gap: tokens.spacing.base },
   lead: { gap: tokens.spacing.sm },
   card: {
@@ -133,8 +120,22 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.md,
     ...tokens.shadows.card,
   },
-  cardLabel: { letterSpacing: 1 },
-  stepper: { gap: tokens.spacing.md },
+  // Figma: Manrope SemiBold 13, uppercase, secondary, +2% tracking.
+  cardLabel: {
+    fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.labelSmall.size,
+    letterSpacing: tokens.fonts.labelSmall.letterSpacing,
+    textTransform: 'uppercase',
+    color: tokens.colors.secondary,
+  },
+  // Figma: Manrope Bold 28 (Bold -> SemiBold), not the serif token.
+  goalValue: {
+    fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.displayLarge.size,
+    letterSpacing: 0,
+    color: tokens.colors.text,
+  },
+  stepper: { gap: tokens.spacing.sm },
   stepButton: {
     minHeight: 48,
     borderRadius: tokens.radii.pill,

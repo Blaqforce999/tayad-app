@@ -16,8 +16,9 @@ type BookCardProps = {
   style?: ViewStyle;
 };
 
-// Meta text: Figma pairs 13px with Manrope Regular; our labelSmall token is
-// 13 Medium +2%, so author / blurb use body-small size with the regular family.
+// Figma BookCard (component 218:150806). The whole card is the tap target — the
+// screen instances carry no inner CTA button, so neither does this. Meta text is
+// Manrope Regular 13 (label-small size), title is Instrument Serif 24.
 export function BookCard({ book, explanation, variant, onPress, style }: BookCardProps) {
   const scale = useRef(new Animated.Value(1)).current;
   const animateTo = (toValue: number) =>
@@ -61,34 +62,23 @@ export function BookCard({ book, explanation, variant, onPress, style }: BookCar
                 <AppText style={styles.metaText}>{book.author}</AppText>
               </View>
               <AppText style={styles.blurb}>{explanation}</AppText>
-              <View style={styles.ctaPill}>
-                <AppText variant="labelButton">View book</AppText>
-              </View>
             </View>
           </>
         ) : (
-          <>
-            <View style={styles.row}>
-              {book.coverUrl ? (
-                <Image source={{ uri: book.coverUrl }} style={styles.thumb} resizeMode="cover" />
-              ) : (
-                <View style={[styles.thumb, styles.heroFallback]}>
-                  <Ionicons name="book-outline" size={20} color={tokens.colors.textMuted} />
-                </View>
-              )}
-              <View style={styles.rowBody}>
-                <AppText variant="displayMedium">{book.title}</AppText>
-                <AppText style={styles.metaText}>{book.author}</AppText>
-                <AppText style={styles.blurb}>{explanation}</AppText>
+          <View style={styles.row}>
+            {book.coverUrl ? (
+              <Image source={{ uri: book.coverUrl }} style={styles.thumb} resizeMode="cover" />
+            ) : (
+              <View style={[styles.thumb, styles.heroFallback]}>
+                <Ionicons name="book-outline" size={20} color={tokens.colors.textMuted} />
               </View>
+            )}
+            <View style={styles.rowBody}>
+              <AppText variant="displayMedium">{book.title}</AppText>
+              <AppText style={styles.metaText}>{book.author}</AppText>
+              <AppText style={styles.blurb}>{explanation}</AppText>
             </View>
-            <View style={styles.secondaryCta}>
-              <AppText variant="labelSmall" color={tokens.colors.primaryPressed}>
-                View book
-              </AppText>
-              <Ionicons name="chevron-forward" size={16} color={tokens.colors.primaryPressed} />
-            </View>
-          </>
+          </View>
         )}
       </Animated.View>
     </Pressable>
@@ -99,6 +89,7 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: tokens.radii.card,
     overflow: 'hidden',
+    padding: tokens.spacing.base,
     ...tokens.shadows.card,
   },
   primaryCard: {
@@ -106,7 +97,6 @@ const styles = StyleSheet.create({
   },
   secondaryCard: {
     backgroundColor: tokens.colors.surfaceContainerHigh,
-    padding: tokens.spacing.base,
   },
   hero: {
     width: '100%',
@@ -117,8 +107,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  // Figma book-body: extra px16 / pt12 / pb16 inside the card's own 16 padding.
   primaryBody: {
-    padding: tokens.spacing.base,
+    paddingHorizontal: tokens.spacing.base,
+    paddingTop: tokens.spacing.md,
+    paddingBottom: tokens.spacing.base,
     gap: tokens.spacing.md,
   },
   badge: {
@@ -131,6 +124,8 @@ const styles = StyleSheet.create({
   meta: {
     gap: tokens.spacing.xs,
   },
+  // Figma pairs 13px with Manrope Regular; labelSmall token is 13 Medium +2%,
+  // so author / blurb use body-small's regular family at label-small's size.
   metaText: {
     fontFamily: tokens.fonts.bodySmall.family,
     fontSize: tokens.fonts.labelSmall.size,
@@ -142,18 +137,11 @@ const styles = StyleSheet.create({
     lineHeight: tokens.fonts.labelSmall.size * 1.4,
     color: tokens.colors.secondary,
   },
-  ctaPill: {
-    alignSelf: 'flex-start',
-    backgroundColor: tokens.colors.primary,
-    borderRadius: tokens.radii.pill,
-    paddingHorizontal: tokens.spacing.lg,
-    paddingVertical: tokens.spacing.md,
-    minHeight: 44,
-    justifyContent: 'center',
-  },
+  // Figma book-row: its own 16 padding on top of the card's 16.
   row: {
     flexDirection: 'row',
     gap: tokens.spacing.md,
+    padding: tokens.spacing.base,
   },
   thumb: {
     width: 72,
@@ -163,11 +151,5 @@ const styles = StyleSheet.create({
   rowBody: {
     flex: 1,
     gap: tokens.spacing.sm,
-  },
-  secondaryCta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.xs,
-    marginTop: tokens.spacing.md,
   },
 });

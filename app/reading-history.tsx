@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
 import { ProgressBar } from '@/components/reading/ProgressBar';
@@ -20,10 +19,8 @@ import { usePlan } from '@/hooks/usePlan';
 function HistoryRow({ plan, verb }: { plan: HistoryPlan; verb: string }) {
   return (
     <View style={styles.row}>
-      <AppText variant="bodyLarge" style={styles.rowTitle}>
-        {plan.title}
-      </AppText>
-      <AppText variant="labelSmall" color={tokens.colors.secondary}>
+      <AppText variant="labelButton">{plan.title}</AppText>
+      <AppText style={styles.rowMeta}>
         {verb} · {formatShortDate(plan.date)}
       </AppText>
     </View>
@@ -43,12 +40,16 @@ export default function ReadingHistoryScreen() {
   const currentPct = plan && plan.totalPages ? plan.pagesRead / plan.totalPages : 0;
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Pressable style={styles.back} onPress={() => router.back()} accessibilityRole="button">
-          <Ionicons name="chevron-back" size={20} color={tokens.colors.secondary} />
+        <Pressable
+          style={styles.back}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+        >
           <AppText variant="bodySmall" color={tokens.colors.secondary}>
-            Back
+            ← Back
           </AppText>
         </Pressable>
 
@@ -56,14 +57,12 @@ export default function ReadingHistoryScreen() {
 
         {plan ? (
           <View style={styles.section}>
-            <AppText variant="labelSmall" color={tokens.colors.secondary} style={styles.sectionLabel}>
-              CURRENTLY READING
-            </AppText>
+            <AppText style={styles.sectionLabel}>Currently reading</AppText>
             <View style={styles.currentCard}>
               <View style={styles.currentHeader}>
                 <View style={styles.currentTitle}>
                   <AppText variant="labelButton">{plan.book.title}</AppText>
-                  <AppText variant="labelSmall" color={tokens.colors.secondary}>
+                  <AppText style={styles.rowMeta}>
                     {plan.book.author} · Started {formatShortDate(plan.startDate)}
                   </AppText>
                 </View>
@@ -76,8 +75,8 @@ export default function ReadingHistoryScreen() {
 
         {history.completed.length > 0 ? (
           <View style={styles.section}>
-            <AppText variant="labelSmall" color={tokens.colors.secondary} style={styles.sectionLabel}>
-              {history.completed.length} BOOK{history.completed.length === 1 ? '' : 'S'} COMPLETED
+            <AppText style={styles.sectionLabel}>
+              {history.completed.length} book{history.completed.length === 1 ? '' : 's'} completed
             </AppText>
             {history.completed.map((item) => (
               <HistoryRow key={item.id} plan={item} verb="Finished" />
@@ -87,11 +86,9 @@ export default function ReadingHistoryScreen() {
 
         {history.setAside.length > 0 ? (
           <View style={styles.section}>
-            <AppText variant="labelSmall" color={tokens.colors.secondary} style={styles.sectionLabel}>
-              {history.setAside.length} SET ASIDE
-            </AppText>
+            <AppText style={styles.sectionLabel}>{history.setAside.length} paused</AppText>
             {history.setAside.map((item) => (
-              <HistoryRow key={item.id} plan={item} verb="Set aside" />
+              <HistoryRow key={item.id} plan={item} verb="Paused" />
             ))}
           </View>
         ) : null}
@@ -112,26 +109,31 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingTop: tokens.spacing.lg,
-    paddingBottom: tokens.spacing.xl,
+    paddingBottom: tokens.spacing.base,
     gap: tokens.spacing.base,
   },
   back: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.xs,
     alignSelf: 'flex-start',
+    paddingVertical: tokens.spacing.sm,
+    paddingRight: tokens.spacing.md,
   },
   title: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: tokens.fonts.displayMedium.size,
     lineHeight: tokens.fonts.displayMedium.size * 1.15,
+    letterSpacing: 0,
     color: tokens.colors.text,
   },
   section: {
     gap: tokens.spacing.sm,
   },
+  // Figma: Manrope SemiBold 13, uppercase, secondary, +2% tracking.
   sectionLabel: {
-    letterSpacing: 1,
+    fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.labelSmall.size,
+    letterSpacing: tokens.fonts.labelSmall.letterSpacing,
+    textTransform: 'uppercase',
+    color: tokens.colors.secondary,
   },
   currentCard: {
     backgroundColor: tokens.colors.surfaceContainerHigh,
@@ -150,6 +152,7 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 2,
   },
+  // Figma: Manrope Bold 16, primary (amber). Bold -> SemiBold.
   percent: {
     fontFamily: tokens.fonts.labelButton.family,
     color: tokens.colors.primary,
@@ -158,12 +161,14 @@ const styles = StyleSheet.create({
     minHeight: 52,
     borderRadius: tokens.radii.input,
     backgroundColor: tokens.colors.surfaceContainer,
-    paddingHorizontal: tokens.spacing.base,
-    paddingVertical: tokens.spacing.md,
-    justifyContent: 'center',
+    padding: tokens.spacing.base,
+    justifyContent: 'space-between',
     gap: 2,
   },
-  rowTitle: {
-    fontFamily: tokens.fonts.labelButton.family,
+  // Figma: Manrope Regular 13, secondary.
+  rowMeta: {
+    fontFamily: tokens.fonts.bodySmall.family,
+    fontSize: tokens.fonts.labelSmall.size,
+    color: tokens.colors.secondary,
   },
 });

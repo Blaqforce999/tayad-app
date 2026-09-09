@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -45,15 +45,19 @@ export default function ProgressScreen() {
   );
 
   if (isLoading) {
-    return <Screen edges={['top']} style={styles.screen}><View /></Screen>;
+    return (
+      <Screen edges={['top']} style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
+        <View />
+      </Screen>
+    );
   }
 
   const hasHistory = Boolean(plan) || booksFinished > 0 || streak.count > 0;
 
   if (!hasHistory) {
     return (
-      <Screen edges={['top']} style={styles.screen}>
-        <View style={styles.emptyWrap}>
+      <Screen edges={['top']} style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
+        <View style={styles.emptyContent}>
           <AppText style={styles.title}>Progress</AppText>
           <View style={styles.emptyBody}>
             <View style={styles.ring}>
@@ -63,15 +67,16 @@ export default function ProgressScreen() {
                   cy={80}
                   r={72}
                   stroke={tokens.colors.surfaceContainerHigh}
-                  strokeWidth={9}
+                  strokeWidth={16}
                   fill="none"
                 />
               </Svg>
               <View style={styles.ringBadge}>
-                <Ionicons name="bookmark" size={18} color={tokens.colors.onPrimary} />
+                <Feather name="bookmark" size={24} color={tokens.colors.onPrimary} />
               </View>
             </View>
             <EmptyState
+              hideIcon
               title="Day one starts here"
               body="Choose a book. Your progress will appear here."
             />
@@ -85,13 +90,11 @@ export default function ProgressScreen() {
   const planPct = plan && plan.totalPages ? plan.pagesRead / plan.totalPages : 0;
 
   return (
-    <Screen edges={['top']} style={styles.screen}>
+    <Screen edges={['top']} style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <AppText style={styles.title}>Progress</AppText>
 
-        <View style={styles.badgeWrap}>
-          <StreakBadge count={streak.count} />
-        </View>
+        <StreakBadge count={streak.count} style={styles.badge} />
 
         {plan ? (
           <Pressable
@@ -100,54 +103,38 @@ export default function ProgressScreen() {
             accessibilityRole="button"
           >
             <View style={styles.cardHeader}>
-              <AppText variant="labelSmall" color={tokens.colors.secondary} style={styles.cardLabel}>
-                CURRENT PLAN
-              </AppText>
+              <AppText style={styles.cardLabel}>Current plan</AppText>
               <AppText style={styles.percent}>{Math.round(planPct * 100)}%</AppText>
             </View>
             <ProgressBar value={planPct} />
             <View style={styles.cardMeta}>
-              <AppText variant="labelSmall" color={tokens.colors.secondary}>
+              <AppText style={styles.metaText}>
                 {plan.book.title} · {plan.dailyPages} pages/day
               </AppText>
-              <Ionicons name="arrow-forward" size={16} color={tokens.colors.secondary} />
+              <Feather name="arrow-right" size={16} color={tokens.colors.secondary} />
             </View>
           </Pressable>
         ) : null}
 
         <View style={styles.statsRow}>
-          <StatCard
-            label="LONGEST STREAK"
-            value={String(streak.longest)}
-            sublabel="days in a row"
-          />
-          <StatCard
-            label="BOOKS FINISHED"
-            value={String(booksFinished)}
-            sublabel="all time"
-          />
+          <StatCard label="Longest streak" value={String(streak.longest)} sublabel="days in a row" />
+          <StatCard label="Books finished" value={String(booksFinished)} sublabel="all time" />
         </View>
 
         <View style={styles.card}>
           <View style={styles.cardHeader}>
-            <AppText variant="labelSmall" color={tokens.colors.secondary} style={styles.cardLabel}>
-              READING TREND
-            </AppText>
+            <AppText style={styles.cardLabel}>Reading trend</AppText>
             {trend !== null ? (
               <AppText style={styles.percent}>
                 {trend >= 0 ? '+' : ''}
                 {trend}%
               </AppText>
             ) : (
-              <AppText variant="labelSmall" color={tokens.colors.secondary}>
-                Just getting started
-              </AppText>
+              <AppText style={styles.metaText}>Just getting started</AppText>
             )}
           </View>
           {series.length > 0 ? <TrendChart data={series} /> : null}
-          <AppText variant="labelSmall" color={tokens.colors.secondary}>
-            Pages read this week vs last week
-          </AppText>
+          <AppText style={styles.metaText}>Pages read this week vs last week</AppText>
         </View>
 
         <Pressable
@@ -158,7 +145,7 @@ export default function ProgressScreen() {
           <AppText variant="bodySmall" color={tokens.colors.primaryPressed}>
             See all reflections
           </AppText>
-          <Ionicons name="chevron-forward" size={16} color={tokens.colors.primaryPressed} />
+          <Feather name="chevron-right" size={16} color={tokens.colors.primaryPressed} />
         </Pressable>
       </ScrollView>
     </Screen>
@@ -171,18 +158,19 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingTop: tokens.spacing.lg,
-    paddingBottom: tokens.spacing.xl,
+    paddingBottom: tokens.spacing.base,
     gap: tokens.spacing.base,
   },
+  // Figma: Manrope Bold 24 / 1.15 (Bold -> SemiBold).
   title: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: tokens.fonts.displayMedium.size,
     lineHeight: tokens.fonts.displayMedium.size * 1.15,
+    letterSpacing: 0,
     color: tokens.colors.text,
   },
-  badgeWrap: {
-    alignItems: 'center',
-    paddingVertical: tokens.spacing.base,
+  badge: {
+    alignSelf: 'center',
   },
   card: {
     backgroundColor: tokens.colors.surfaceContainerHigh,
@@ -196,17 +184,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  // Figma: Manrope SemiBold 13, uppercase, secondary, +2% tracking.
   cardLabel: {
-    letterSpacing: 1,
+    fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.labelSmall.size,
+    letterSpacing: tokens.fonts.labelSmall.letterSpacing,
+    textTransform: 'uppercase',
+    color: tokens.colors.secondary,
   },
+  // Figma: Manrope Bold 13, primary (amber). Bold -> SemiBold.
   percent: {
     fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.labelSmall.size,
     color: tokens.colors.primary,
   },
   cardMeta: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  // Figma caption text: Manrope Regular 13, secondary.
+  metaText: {
+    fontFamily: tokens.fonts.bodySmall.family,
+    fontSize: tokens.fonts.labelSmall.size,
+    color: tokens.colors.secondary,
   },
   statsRow: {
     flexDirection: 'row',
@@ -219,9 +220,10 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.xs,
     paddingTop: tokens.spacing.sm,
   },
-  emptyWrap: {
+  emptyContent: {
     flex: 1,
     paddingTop: tokens.spacing.lg,
+    paddingBottom: tokens.spacing.base,
     gap: tokens.spacing.lg,
   },
   emptyBody: {

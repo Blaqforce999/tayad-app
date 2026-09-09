@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 
-import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/shared/Screen';
+import { BackHeader } from '@/components/shared/BackHeader';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import {
@@ -41,30 +40,20 @@ export default function SettingsReminderScreen() {
 
   return (
     <Screen style={styles.screen}>
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => router.back()}
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-          hitSlop={8}
-        >
-          <Ionicons name="chevron-back" size={24} color={tokens.colors.text} />
-        </Pressable>
-        <AppText variant="labelButton">Reading reminder</AppText>
-      </View>
+      <BackHeader title="Reading reminder" />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.lead}>
-          <AppText variant="displayMedium">When should we nudge you?</AppText>
-          <AppText variant="bodySmall" color={tokens.colors.secondary}>
-            We'll phrase it around what you're tired of, never the book title.
+          <AppText style={styles.leadTitle}>When should we nudge you?</AppText>
+          <AppText style={styles.leadSub}>
+            We&apos;ll phrase it around what you&apos;re tired of, never the book title.
           </AppText>
         </View>
 
-        <Card variant="raised" style={styles.timeCard}>
+        <View style={styles.timeCard}>
           <AppText style={styles.bigTime}>{displayTime}</AppText>
           <AppText style={styles.period}>{period}</AppText>
-        </Card>
+        </View>
 
         <View style={styles.chips}>
           {REMINDER_OPTIONS.map((option) => {
@@ -78,9 +67,10 @@ export default function SettingsReminderScreen() {
                 accessibilityState={{ selected: active }}
               >
                 <AppText
-                  variant="labelSmall"
-                  color={active ? tokens.colors.onSecondary : tokens.colors.textMuted}
-                  style={styles.chipLabel}
+                  style={[
+                    styles.chipLabel,
+                    { color: active ? tokens.colors.surfaceRaised : tokens.colors.textMuted },
+                  ]}
                 >
                   {option.label}
                 </AppText>
@@ -91,22 +81,24 @@ export default function SettingsReminderScreen() {
 
         <View style={styles.preview}>
           <AppText style={styles.previewLabel}>
-            WHAT YOU'LL SEE AT {displayTime} {period}
+            WHAT YOU&apos;LL SEE AT {displayTime} {period}
           </AppText>
           <View style={styles.notification}>
-            <AppText variant="bodySmall" style={styles.notifTitle}>
-              Still tired of feeling stuck?
-            </AppText>
-            <AppText variant="bodySmall" color={tokens.colors.secondary}>
-              15 pages tonight. Day 4 of 18.
-            </AppText>
+            <AppText style={styles.notifTitle}>Still tired of feeling stuck?</AppText>
+            <AppText style={styles.notifBody}>15 pages tonight. Day 4 of 18.</AppText>
           </View>
         </View>
       </ScrollView>
 
       <View style={styles.footer}>
         <Button label="Save reminder" onPress={handleSave} loading={isSaving} />
-        <Button label="Notifications are optional — skip for now" variant="ghost" onPress={() => router.back()} />
+        <Pressable
+          style={styles.skip}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+        >
+          <AppText style={styles.skipLabel}>Notifications are optional - skip for now</AppText>
+        </Pressable>
       </View>
     </Screen>
   );
@@ -116,13 +108,6 @@ const styles = StyleSheet.create({
   screen: {
     paddingHorizontal: tokens.spacing.base,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: tokens.spacing.md,
-    paddingTop: tokens.spacing.xs,
-    paddingBottom: tokens.spacing.md,
-  },
   content: {
     paddingBottom: tokens.spacing.base,
     gap: tokens.spacing.base,
@@ -130,12 +115,31 @@ const styles = StyleSheet.create({
   lead: {
     gap: tokens.spacing.sm,
   },
+  // Figma: Instrument Serif 26 / 1.15.
+  leadTitle: {
+    fontFamily: tokens.fonts.displayMedium.family,
+    fontSize: 26,
+    lineHeight: 26 * 1.15,
+    letterSpacing: -0.26,
+    color: tokens.colors.text,
+  },
+  // Figma: Manrope Regular 14 / 1.6, secondary.
+  leadSub: {
+    fontFamily: tokens.fonts.bodySmall.family,
+    fontSize: tokens.fonts.bodySmall.size,
+    lineHeight: tokens.fonts.bodySmall.size * 1.6,
+    color: tokens.colors.secondary,
+  },
   timeCard: {
+    backgroundColor: tokens.colors.surfaceRaised,
+    borderRadius: tokens.radii.card,
     flexDirection: 'row',
     alignItems: 'baseline',
     justifyContent: 'center',
     gap: 6,
+    paddingHorizontal: tokens.spacing.base,
     paddingVertical: tokens.spacing.lg,
+    ...tokens.shadows.card,
   },
   // Figma: Instrument Serif 56.
   bigTime: {
@@ -144,10 +148,11 @@ const styles = StyleSheet.create({
     letterSpacing: -1.12,
     color: tokens.colors.text,
   },
+  // Figma: Manrope SemiBold 16, dust, +6% tracking.
   period: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: tokens.fonts.labelButton.size,
-    letterSpacing: 1,
+    letterSpacing: 0.96,
     color: tokens.colors.textMuted,
   },
   chips: {
@@ -159,18 +164,24 @@ const styles = StyleSheet.create({
     minHeight: 44,
     borderRadius: tokens.radii.pill,
     backgroundColor: tokens.colors.surfaceContainer,
+    paddingHorizontal: tokens.spacing.md,
+    paddingVertical: tokens.spacing.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
   chipActive: {
     backgroundColor: tokens.colors.secondary,
   },
+  // Figma: Manrope SemiBold 13.
   chipLabel: {
+    fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.labelSmall.size,
     letterSpacing: 0,
   },
   preview: {
     gap: tokens.spacing.sm,
   },
+  // Figma: Manrope SemiBold 10, dust, +1px tracking.
   previewLabel: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: 10,
@@ -180,16 +191,38 @@ const styles = StyleSheet.create({
   notification: {
     backgroundColor: tokens.colors.surfaceRaised,
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: tokens.colors.divider,
     padding: tokens.spacing.base,
     gap: tokens.spacing.xs,
     ...tokens.shadows.card,
   },
+  // Figma: Manrope Medium 14.
   notifTitle: {
-    fontFamily: tokens.fonts.labelButton.family,
+    fontFamily: tokens.fonts.labelSmall.family,
+    fontSize: tokens.fonts.bodySmall.size,
+    color: tokens.colors.text,
+  },
+  // Figma: Manrope Regular 14, muted.
+  notifBody: {
+    fontFamily: tokens.fonts.bodySmall.family,
+    fontSize: tokens.fonts.bodySmall.size,
+    color: tokens.colors.secondary,
   },
   footer: {
     paddingTop: tokens.spacing.sm,
-    paddingBottom: tokens.spacing.sm,
-    gap: tokens.spacing.sm,
+    paddingBottom: tokens.spacing.xs,
+    gap: tokens.spacing.md,
+  },
+  skip: {
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // Figma: Manrope Medium 14, dust.
+  skipLabel: {
+    fontFamily: tokens.fonts.labelSmall.family,
+    fontSize: tokens.fonts.bodySmall.size,
+    color: tokens.colors.textMuted,
   },
 });

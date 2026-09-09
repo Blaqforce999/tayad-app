@@ -5,7 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 
 import { Screen } from '@/components/shared/Screen';
-import { SectionIntro } from '@/components/shared/SectionIntro';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import {
@@ -59,20 +58,18 @@ export default function PlanSetupScreen() {
   };
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <SectionIntro
-          overline={draft.title}
-          title="Make it small enough to keep"
-          subtitle="Set a daily reading goal you'll actually stick to."
-          titleFace="sans"
-        />
+        <View style={styles.heading}>
+          <AppText style={styles.title}>Make it small enough to keep</AppText>
+          <AppText variant="bodySmall" color={tokens.colors.secondary}>
+            Set a daily reading goal you&apos;ll actually stick to.
+          </AppText>
+        </View>
 
         <View style={styles.card}>
-          <AppText variant="labelSmall" color={tokens.colors.secondary} style={styles.cardLabel}>
-            DAILY GOAL
-          </AppText>
-          <AppText variant="displayLarge">{dailyPages} pages</AppText>
+          <AppText style={styles.cardLabel}>Daily goal</AppText>
+          <AppText style={styles.goalValue}>{dailyPages} pages</AppText>
           <View style={styles.stepper}>
             <Pressable
               style={[styles.stepButton, dailyPages <= MIN_DAILY_PAGES && styles.stepDisabled]}
@@ -98,7 +95,7 @@ export default function PlanSetupScreen() {
         <View style={styles.calcRow}>
           <Ionicons name="flash" size={16} color={tokens.colors.secondary} />
           <AppText variant="bodySmall" color={tokens.colors.secondary} style={styles.calcText}>
-            At {dailyPages} pages a day, you'll finish in{' '}
+            At {dailyPages} pages a day, you&apos;ll finish in{' '}
             <AppText variant="bodySmall" style={styles.calcStrong}>
               {days} days.
             </AppText>
@@ -109,9 +106,7 @@ export default function PlanSetupScreen() {
 
         <View style={styles.reminderRow}>
           <AppText variant="bodyLarge">Reminder time</AppText>
-          <AppText variant="labelSmall" color={tokens.colors.secondary}>
-            8:30 PM
-          </AppText>
+          <AppText style={styles.reminderValue}>8:30 PM</AppText>
         </View>
 
         {error ? (
@@ -119,11 +114,9 @@ export default function PlanSetupScreen() {
             {error}
           </AppText>
         ) : null}
-      </ScrollView>
 
-      <View style={styles.footer}>
         <Button label="Start reading plan" onPress={handleStart} loading={isSubmitting} />
-      </View>
+      </ScrollView>
     </Screen>
   );
 }
@@ -134,8 +127,19 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingTop: tokens.spacing.lg,
-    paddingBottom: tokens.spacing.lg,
+    paddingBottom: tokens.spacing.xl,
     gap: tokens.spacing.base,
+  },
+  heading: {
+    gap: tokens.spacing.xs,
+  },
+  // Figma: Manrope Bold 24 / 1.15 (Bold -> SemiBold).
+  title: {
+    fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.displayMedium.size,
+    lineHeight: tokens.fonts.displayMedium.size * 1.15,
+    letterSpacing: 0,
+    color: tokens.colors.text,
   },
   card: {
     backgroundColor: tokens.colors.surfaceContainerHigh,
@@ -144,11 +148,23 @@ const styles = StyleSheet.create({
     gap: tokens.spacing.md,
     ...tokens.shadows.card,
   },
+  // Figma: Manrope SemiBold 13, uppercase, secondary, +2% tracking.
   cardLabel: {
-    letterSpacing: 1,
+    fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.labelSmall.size,
+    letterSpacing: tokens.fonts.labelSmall.letterSpacing,
+    textTransform: 'uppercase',
+    color: tokens.colors.secondary,
+  },
+  // Figma: Manrope Bold 28 (Bold -> SemiBold), not the serif display token.
+  goalValue: {
+    fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.displayLarge.size,
+    letterSpacing: 0,
+    color: tokens.colors.text,
   },
   stepper: {
-    gap: tokens.spacing.md,
+    gap: tokens.spacing.sm,
   },
   stepButton: {
     minHeight: 48,
@@ -178,20 +194,21 @@ const styles = StyleSheet.create({
     color: tokens.colors.text,
   },
   divider: {
-    height: StyleSheet.hairlineWidth,
+    height: 1,
     backgroundColor: tokens.colors.surfaceContainerHigh,
   },
+  // Figma ListRow: column, label above value, radius 16, p16, min-h 52.
   reminderRow: {
     minHeight: 52,
     borderRadius: tokens.radii.input,
     backgroundColor: tokens.colors.surfaceContainer,
-    paddingHorizontal: tokens.spacing.base,
-    flexDirection: 'row',
-    alignItems: 'center',
+    padding: tokens.spacing.base,
     justifyContent: 'space-between',
+    gap: tokens.spacing.xs,
   },
-  footer: {
-    paddingTop: tokens.spacing.sm,
-    paddingBottom: tokens.spacing.sm,
+  reminderValue: {
+    fontFamily: tokens.fonts.bodySmall.family,
+    fontSize: tokens.fonts.labelSmall.size,
+    color: tokens.colors.secondary,
   },
 });

@@ -103,7 +103,8 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: tokens.fonts.bodyLarge.family,
     fontSize: tokens.fonts.bodyLarge.size,
-    lineHeight: tokens.fonts.bodyLarge.size * tokens.fonts.bodyLarge.lineHeight,
+    // Figma field text: 16 / 1.5.
+    lineHeight: tokens.fonts.bodyLarge.size * 1.5,
     color: tokens.colors.text,
   },
   helperMuted: {

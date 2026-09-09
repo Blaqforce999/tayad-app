@@ -32,8 +32,9 @@ export function Input({
 }: InputProps) {
   const [isFocused, setIsFocused] = useState(false);
 
-  // Figma Input states: default = surface-container, focused/filled = white,
-  // error = surface-container-high. No border — separation is by surface step.
+  // Figma Input states (component 218:150388): default = surface-container,
+  // focused/filled = white, error = surface-container-high. Every state carries
+  // a 1px divider border.
   const hasError = Boolean(error);
   const isRaised = isFocused || Boolean(value);
   const fieldBackground = hasError
@@ -41,7 +42,6 @@ export function Input({
     : isRaised
       ? tokens.colors.surfaceRaised
       : tokens.colors.surfaceContainer;
-
   return (
     <View style={[styles.container, containerStyle]}>
       <AppText style={styles.label}>{label}</AppText>
@@ -93,6 +93,8 @@ const styles = StyleSheet.create({
   field: {
     minHeight: 52,
     borderRadius: tokens.radii.input,
+    borderWidth: 1,
+    borderColor: tokens.colors.divider,
     paddingHorizontal: tokens.spacing.base,
     justifyContent: 'center',
     overflow: 'hidden',
@@ -100,13 +102,12 @@ const styles = StyleSheet.create({
   input: {
     fontFamily: tokens.fonts.bodyLarge.family,
     fontSize: tokens.fonts.bodyLarge.size,
-    lineHeight: tokens.fonts.bodyLarge.size * tokens.fonts.bodyLarge.lineHeight,
+    // Figma input text: 16 / 1.5 (not the 1.6 body-large default).
+    lineHeight: tokens.fonts.bodyLarge.size * 1.5,
     color: tokens.colors.text,
     paddingVertical: tokens.spacing.base,
   },
-  helper: {
-    marginTop: tokens.spacing.xs,
-  },
+  helper: {},
   helperMuted: {
     opacity: 0.6,
   },

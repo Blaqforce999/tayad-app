@@ -58,7 +58,7 @@ export default function ClarifyingScreen() {
   };
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flexGrow: 1,
-    paddingTop: tokens.spacing.base,
+    paddingTop: tokens.spacing.lg,
     paddingBottom: tokens.spacing.base,
     gap: tokens.spacing.base,
   },

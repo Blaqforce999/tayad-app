@@ -8,10 +8,10 @@ import {
   View,
 } from 'react-native';
 
-import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
 import { Redirect, router } from 'expo-router';
 
+import BackCta from '@/assets/icons/back-cta.svg';
 import { Screen } from '@/components/shared/Screen';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
@@ -44,7 +44,7 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -58,8 +58,9 @@ export default function ForgotPasswordScreen() {
             style={styles.backNav}
             onPress={() => router.replace('/sign-in')}
             accessibilityRole="button"
+            accessibilityLabel="Back to sign in"
           >
-            <Ionicons name="chevron-back" size={20} color={tokens.colors.secondary} />
+            <BackCta width={40} height={41} />
             <AppText style={styles.backText}>Back to sign in</AppText>
           </Pressable>
 

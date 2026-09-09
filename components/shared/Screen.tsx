@@ -8,12 +8,23 @@ type ScreenProps = {
   children: ReactNode;
   // Which safe-area edges to inset. Screens under the tab bar usually drop 'bottom'.
   edges?: readonly Edge[];
+  // Page background. Defaults to the app surface; pass a token when the Figma
+  // screen sits on a different surface (e.g. surface-container for auth).
+  backgroundColor?: string;
   style?: ViewStyle;
 };
 
-export function Screen({ children, edges = ['top', 'bottom'], style }: ScreenProps) {
+export function Screen({
+  children,
+  edges = ['top', 'bottom'],
+  backgroundColor,
+  style,
+}: ScreenProps) {
   return (
-    <SafeAreaView style={styles.safe} edges={edges}>
+    <SafeAreaView
+      style={[styles.safe, backgroundColor ? { backgroundColor } : null]}
+      edges={edges}
+    >
       <View style={[styles.content, style]}>{children}</View>
     </SafeAreaView>
   );
@@ -26,6 +37,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: tokens.spacing.lg,
+    // Figma screens use a 16px screen margin.
+    paddingHorizontal: tokens.spacing.base,
   },
 });

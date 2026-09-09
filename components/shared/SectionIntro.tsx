@@ -10,6 +10,8 @@ type SectionIntroProps = {
   subtitle?: string;
   // Instrument Serif ('serif') for emotional moments, Manrope Bold ('sans') otherwise.
   titleFace?: 'serif' | 'sans';
+  // Serif title size: 'large' = display-large (28), 'medium' = display-medium (24).
+  size?: 'large' | 'medium';
   style?: ViewStyle;
 };
 
@@ -18,6 +20,7 @@ export function SectionIntro({
   title,
   subtitle,
   titleFace = 'serif',
+  size = 'large',
   style,
 }: SectionIntroProps) {
   return (
@@ -26,12 +29,14 @@ export function SectionIntro({
         {overline}
       </AppText>
       {titleFace === 'serif' ? (
-        <AppText variant="displayLarge">{title}</AppText>
+        <AppText variant={size === 'medium' ? 'displayMedium' : 'displayLarge'}>
+          {title}
+        </AppText>
       ) : (
         <AppText style={styles.sansTitle}>{title}</AppText>
       )}
       {subtitle ? (
-        <AppText variant="bodySmall" color={tokens.colors.secondary} style={styles.subtitle}>
+        <AppText variant="bodySmall" color={tokens.colors.secondary}>
           {subtitle}
         </AppText>
       ) : null}
@@ -50,8 +55,5 @@ const styles = StyleSheet.create({
     lineHeight: tokens.fonts.displayMedium.size * 1.15,
     letterSpacing: 0,
     color: tokens.colors.text,
-  },
-  subtitle: {
-    marginTop: -tokens.spacing.xs,
   },
 });

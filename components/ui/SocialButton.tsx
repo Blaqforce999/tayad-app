@@ -62,7 +62,7 @@ export function SocialButton({ provider, onPress, disabled = false, style }: Soc
           ]}
         >
           <View style={styles.icon}>
-            <Logo width={20} height={20} />
+            <Logo width={24} height={24} />
           </View>
           <AppText style={[styles.label, { color: foreground }]}>{label}</AppText>
         </Animated.View>
@@ -81,6 +81,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: tokens.spacing.md,
+    // Figma Shadow/xs on the social button: 0 1 2 rgba(16,24,40,0.05).
+    shadowColor: '#101828',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   icon: {
     width: 24,

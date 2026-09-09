@@ -29,6 +29,8 @@ const styles = StyleSheet.create(
         // centred line", so hand those back to the platform's natural leading.
         lineHeight: font.lineHeight > 1 ? font.size * font.lineHeight : undefined,
         letterSpacing: font.letterSpacing,
+        // The overline role is always set in caps in the Figma design system.
+        textTransform: key === 'overline' ? 'uppercase' : undefined,
         color: tokens.colors.text,
       } satisfies TextStyle,
     ]),

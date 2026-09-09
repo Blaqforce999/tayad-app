@@ -22,7 +22,7 @@ export default function OnboardingScreen() {
   }
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <View style={styles.hero}>
         <View style={styles.mark}>
           <LogoMark width={56} height={56} />

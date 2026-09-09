@@ -61,7 +61,7 @@ export default function SignUpScreen() {
 
   if (awaitingConfirmation) {
     return (
-      <Screen style={styles.screen}>
+      <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
         <View style={styles.confirm}>
           <Wordmark size="sm" />
           <View style={styles.headingGroup}>
@@ -77,7 +77,7 @@ export default function SignUpScreen() {
   }
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -205,7 +205,7 @@ const styles = StyleSheet.create({
   },
   dividerLine: {
     flex: 1,
-    height: StyleSheet.hairlineWidth,
+    height: 1,
     backgroundColor: tokens.colors.surfaceContainerHigh,
   },
   socialStack: {

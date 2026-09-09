@@ -4,7 +4,6 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 're
 import { Redirect, router } from 'expo-router';
 
 import { Screen } from '@/components/shared/Screen';
-import { SectionIntro } from '@/components/shared/SectionIntro';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { TextArea } from '@/components/ui/TextArea';
@@ -59,7 +58,7 @@ export default function ReflectionScreen() {
   };
 
   return (
-    <Screen style={styles.screen}>
+    <Screen style={styles.screen} backgroundColor={tokens.colors.surfaceContainer}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -69,28 +68,27 @@ export default function ReflectionScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <SectionIntro
-            overline="Daily reflection"
-            title="One thought before you go"
-            subtitle={`What did today's pages make you notice about ${context.problemHint}?`}
-            titleFace="sans"
-          />
+          <AppText variant="overline" color={tokens.colors.secondary}>
+            Daily reflection
+          </AppText>
+
+          <View style={styles.questionBlock}>
+            <AppText style={styles.title}>One thought before you go</AppText>
+            <AppText variant="bodyLarge" color={tokens.colors.secondary}>
+              What did today&apos;s pages make you notice about {context.problemHint}?
+            </AppText>
+          </View>
 
           <TextArea
             label="Your thoughts"
             value={text}
             onChangeText={setText}
             placeholder="Write what came up..."
-            helperText="Optional, but it's where the reading sticks."
+            helperText="Share what's on your mind. Be specific."
           />
 
           <Button label="Save reflection" onPress={handleSave} loading={isSaving} />
           <Button label="Skip for today" variant="ghost" onPress={finish} />
-          <AppText variant="metadata" color={tokens.colors.secondary} style={styles.privacy}>
-            Your reflections are private to you.
-          </AppText>
-
-          <View style={styles.spacer} />
         </ScrollView>
       </KeyboardAvoidingView>
     </Screen>
@@ -107,13 +105,18 @@ const styles = StyleSheet.create({
   content: {
     flexGrow: 1,
     paddingTop: tokens.spacing.lg,
-    paddingBottom: tokens.spacing.lg,
+    paddingBottom: tokens.spacing.xl,
     gap: tokens.spacing.base,
   },
-  privacy: {
-    textAlign: 'center',
+  questionBlock: {
+    gap: tokens.spacing.sm,
   },
-  spacer: {
-    flex: 1,
+  // Figma: Manrope Bold 24 / 1.15 (Bold -> SemiBold).
+  title: {
+    fontFamily: tokens.fonts.labelButton.family,
+    fontSize: tokens.fonts.displayMedium.size,
+    lineHeight: tokens.fonts.displayMedium.size * 1.15,
+    letterSpacing: 0,
+    color: tokens.colors.text,
   },
 });

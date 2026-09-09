@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Ionicons } from '@expo/vector-icons';
 
@@ -20,19 +21,25 @@ type StatusSheetProps = {
 // The shared bottom-sheet used by every edge/system state (offline, error,
 // no results, notifications). Rounded top, drag handle, icon, copy, actions.
 export function StatusSheet({ icon, title, body, primary, secondary }: StatusSheetProps) {
-  return (
-    <View style={styles.sheet}>
-      <View style={styles.handle} />
+  const insets = useSafeAreaInsets();
 
-      <View style={styles.iconWell}>
-        <Ionicons name={icon} size={24} color={tokens.colors.secondary} />
+  return (
+    <View style={[styles.sheet, { paddingBottom: tokens.spacing.lg + insets.bottom }]}>
+      <View style={styles.handleRow}>
+        <View style={styles.handle} />
       </View>
 
-      <View style={styles.copy}>
-        <AppText variant="landingBody">{title}</AppText>
-        <AppText variant="bodySmall" color={tokens.colors.secondary}>
-          {body}
-        </AppText>
+      <View style={styles.body}>
+        <View style={styles.iconWell}>
+          <Ionicons name={icon} size={24} color={tokens.colors.secondary} />
+        </View>
+
+        <View style={styles.copy}>
+          <AppText variant="landingBody">{title}</AppText>
+          <AppText variant="bodySmall" color={tokens.colors.secondary}>
+            {body}
+          </AppText>
+        </View>
       </View>
 
       {primary || secondary ? (
@@ -53,7 +60,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: tokens.radii.card,
     borderTopRightRadius: tokens.radii.card,
     paddingTop: tokens.spacing.base,
-    paddingBottom: tokens.spacing.lg,
     paddingHorizontal: tokens.spacing.lg,
     gap: tokens.spacing.base,
     // Upward lift so it reads as a layer above the content it covers.
@@ -63,18 +69,25 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 12,
   },
+  handleRow: {
+    alignItems: 'center',
+  },
+  // Figma: 40x4, secondary.
   handle: {
-    alignSelf: 'center',
     width: 40,
     height: 4,
     borderRadius: tokens.radii.pill,
-    backgroundColor: tokens.colors.surfaceContainerHigh,
+    backgroundColor: tokens.colors.secondary,
+  },
+  // Figma: icon-well + copy grouped at gap 12.
+  body: {
+    gap: tokens.spacing.md,
   },
   iconWell: {
     width: 48,
     height: 48,
     borderRadius: tokens.radii.pill,
-    backgroundColor: tokens.colors.surfaceContainerHigh,
+    backgroundColor: tokens.colors.surfaceContainer,
     alignItems: 'center',
     justifyContent: 'center',
   },
