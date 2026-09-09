@@ -5,6 +5,10 @@ import { AppState } from 'react-native';
 import { createClient } from '@supabase/supabase-js';
 
 import { largeSecureStore } from './secure-storage';
+// Must come after secure-storage (which loads react-native-get-random-values, so
+// `crypto` exists) and before the client is created: adds `crypto.subtle.digest`
+// so PKCE uses a real SHA-256 challenge instead of the "plain" fallback.
+import './crypto-subtle-shim';
 
 // The mobile app reaches Supabase ONLY through this singleton, and it is created
 // with the anon key. There is no service-role client anywhere outside

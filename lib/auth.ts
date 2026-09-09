@@ -1,9 +1,23 @@
+import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
+
 import type { AuthUser } from './types';
 import { supabase } from './supabase';
 
 // Thin wrappers around Supabase Auth. Screens call these; they never touch the
 // supabase client's auth methods directly, so the surface stays small and every
 // error path is handled the same way.
+
+// Lets the auth browser tab hand control back to the app after the redirect.
+WebBrowser.maybeCompleteAuthSession();
+
+// Thrown when the user backs out of the OAuth browser — callers ignore it.
+export class OAuthCancelledError extends Error {
+  constructor() {
+    super('OAuth flow cancelled by the user.');
+    this.name = 'OAuthCancelledError';
+  }
+}
 
 type SignUpResult = {
   // When the project requires email confirmation, sign-up succeeds but no
@@ -34,6 +48,39 @@ export async function signInWithEmail(email: string, password: string): Promise<
 
   if (error) {
     throw error;
+  }
+}
+
+// Google OAuth via the system browser. Supabase gives us the provider URL, we
+// open it, and on the redirect back we trade the PKCE `code` for a session.
+// Requires the Google provider to be enabled in the Supabase dashboard.
+export async function signInWithGoogle(): Promise<void> {
+  const redirectTo = Linking.createURL('/');
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: { redirectTo, skipBrowserRedirect: true },
+  });
+  if (error) {
+    throw error;
+  }
+  if (!data?.url) {
+    throw new Error('Google sign-in is unavailable right now.');
+  }
+
+  const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+  if (result.type !== 'success' || !result.url) {
+    throw new OAuthCancelledError();
+  }
+
+  const code = new URL(result.url).searchParams.get('code');
+  if (!code) {
+    throw new Error('Google sign-in did not complete. Try again.');
+  }
+
+  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+  if (exchangeError) {
+    throw exchangeError;
   }
 }
 

@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/Input';
 import { SocialButton } from '@/components/ui/SocialButton';
 import { Wordmark } from '@/components/ui/Wordmark';
 import { useAuth } from '@/hooks/useAuth';
-import { signUpWithEmail } from '@/lib/auth';
+import { OAuthCancelledError, signInWithGoogle, signUpWithEmail } from '@/lib/auth';
 import { tokens } from '@/lib/tokens';
 
 // Supabase is configured to reject passwords shorter than this.
@@ -30,6 +30,7 @@ export default function SignUpScreen() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
 
   if (user) {
     return <Redirect href="/" />;
@@ -54,9 +55,24 @@ export default function SignUpScreen() {
     }
   };
 
-  // Social sign-in UI is in place; the OAuth flow is wired in a later pass.
-  const handleSocial = () => {
-    Alert.alert('Coming soon', 'Sign in with Apple and Google is on the way.');
+  const handleGoogle = async () => {
+    setError(null);
+    setGoogleBusy(true);
+    try {
+      await signInWithGoogle();
+      // AuthContext picks up the session; the `user` redirect above takes over.
+    } catch (err) {
+      if (!(err instanceof OAuthCancelledError)) {
+        setError('Could not sign up with Google. Try again.');
+      }
+    } finally {
+      setGoogleBusy(false);
+    }
+  };
+
+  // Apple sign-in needs a paid Apple Developer account — not available yet.
+  const handleApple = () => {
+    Alert.alert('Coming soon', 'Sign in with Apple is on the way.');
   };
 
   if (awaitingConfirmation) {
@@ -138,8 +154,8 @@ export default function SignUpScreen() {
           </View>
 
           <View style={styles.socialStack}>
-            <SocialButton provider="apple" onPress={handleSocial} />
-            <SocialButton provider="google" onPress={handleSocial} />
+            <SocialButton provider="apple" onPress={handleApple} />
+            <SocialButton provider="google" onPress={handleGoogle} disabled={googleBusy} />
           </View>
 
           <Button
