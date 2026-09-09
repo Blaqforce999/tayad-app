@@ -7,7 +7,6 @@ import { Screen } from '@/components/shared/Screen';
 import { BackHeader } from '@/components/shared/BackHeader';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
-import { scheduleReadingReminder } from '@/lib/notifications';
 import {
   REMINDER_OPTIONS,
   fetchProfile,
@@ -32,13 +31,8 @@ export default function SettingsReminderScreen() {
     setIsSaving(true);
     try {
       await updateNotificationTime(time);
-      const outcome = await scheduleReadingReminder(time);
-      setIsSaving(false);
-      if (outcome === 'permission-denied') {
-        // Time is saved; the reminder just can't fire. Explain why.
-        router.replace('/status?kind=notifications');
-        return;
-      }
+      // Scheduling the local notification needs a development build (not Expo Go)
+      // and is parked on the backlog. The time is still saved to the profile.
       router.back();
     } catch {
       setIsSaving(false);
