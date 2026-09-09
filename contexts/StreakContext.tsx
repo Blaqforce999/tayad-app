@@ -8,6 +8,8 @@ import { useAuth } from '@/hooks/useAuth';
 type StreakContextValue = {
   streak: StreakState;
   isLoading: boolean;
+  // True when the last refresh failed. The streak value is kept (last-known-good).
+  hasError: boolean;
   refresh: () => Promise<void>;
 };
 
@@ -19,17 +21,22 @@ export function StreakProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [streak, setStreak] = useState<StreakState>(EMPTY);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   const refresh = useCallback(async () => {
     if (!user) {
       setStreak(EMPTY);
+      setHasError(false);
       setIsLoading(false);
       return;
     }
     try {
       setStreak(await fetchStreak());
+      setHasError(false);
     } catch {
-      // Streak display is calculated locally; a stale/absent value is never fatal.
+      // Keep the last-known-good value — a stale count is far better than it
+      // snapping to zero on a network blip.
+      setHasError(true);
     } finally {
       setIsLoading(false);
     }
@@ -41,8 +48,8 @@ export function StreakProvider({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   const value = useMemo<StreakContextValue>(
-    () => ({ streak, isLoading, refresh }),
-    [streak, isLoading, refresh],
+    () => ({ streak, isLoading, hasError, refresh }),
+    [streak, isLoading, hasError, refresh],
   );
 
   return <StreakContext.Provider value={value}>{children}</StreakContext.Provider>;
