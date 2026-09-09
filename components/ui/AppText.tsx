@@ -23,7 +23,11 @@ const styles = StyleSheet.create(
       {
         fontFamily: font.family,
         fontSize: font.size,
-        lineHeight: font.size * font.lineHeight,
+        // React Native treats lineHeight as a hard line box, unlike CSS. At a
+        // 1.0 multiplier the box equals the font size and descenders (g, y, p)
+        // are clipped — the design system's tight button leading means "one
+        // centred line", so hand those back to the platform's natural leading.
+        lineHeight: font.lineHeight > 1 ? font.size * font.lineHeight : undefined,
         letterSpacing: font.letterSpacing,
         color: tokens.colors.text,
       } satisfies TextStyle,
