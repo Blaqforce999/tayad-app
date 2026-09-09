@@ -55,6 +55,23 @@ export function toAuthUser(user: { id: string; email?: string } | null | undefin
   return { id: user.id, email: user.email };
 }
 
+// Changes the account email. Supabase sends a confirmation link to the new
+// address (and, if configured, the old one); the change lands once confirmed.
+export async function changeEmail(newEmail: string): Promise<void> {
+  const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
+  if (error) {
+    throw error;
+  }
+}
+
+// Sets a new password for the signed-in account. Takes effect immediately.
+export async function changePassword(newPassword: string): Promise<void> {
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) {
+    throw error;
+  }
+}
+
 // Sends the password-reset email. The link deep-links back into the app at
 // /reset-password with a `code` we exchange for a short-lived session.
 export async function sendPasswordReset(email: string, redirectTo: string): Promise<void> {

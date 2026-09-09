@@ -23,11 +23,11 @@ const styles = StyleSheet.create(
       {
         fontFamily: font.family,
         fontSize: font.size,
-        // React Native treats lineHeight as a hard line box, unlike CSS. At a
-        // 1.0 multiplier the box equals the font size and descenders (g, y, p)
-        // are clipped — the design system's tight button leading means "one
-        // centred line", so hand those back to the platform's natural leading.
-        lineHeight: font.lineHeight > 1 ? font.size * font.lineHeight : undefined,
+        // Always give Text an explicit line box: a missing lineHeight makes some
+        // Android skins (MIUI) render custom fonts with a stroked outline. A 1.0
+        // token multiplier ("one tight centred line") is bumped to 1.3 so the
+        // box is still snug but descenders (g, y, p) are not clipped.
+        lineHeight: font.size * (font.lineHeight > 1 ? font.lineHeight : 1.3),
         letterSpacing: font.letterSpacing,
         // The overline role is always set in caps in the Figma design system.
         textTransform: key === 'overline' ? 'uppercase' : undefined,

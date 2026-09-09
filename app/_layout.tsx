@@ -1,7 +1,12 @@
 import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { LogBox, StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+// React Native has no WebCrypto `subtle` API, so Supabase's PKCE helper warns
+// once and falls back to a plain code challenge. Email/password sign-in does not
+// rely on it, so the warning is noise — hide the LogBox popup it triggers.
+LogBox.ignoreLogs(['WebCrypto API is not supported']);
 
 import { useFonts } from 'expo-font';
 import { Stack, type ErrorBoundaryProps } from 'expo-router';

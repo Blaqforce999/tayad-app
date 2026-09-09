@@ -116,6 +116,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: tokens.fonts.overline.size,
+    lineHeight: 15,
     letterSpacing: 0,
     textAlign: 'center',
   },

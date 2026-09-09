@@ -124,6 +124,7 @@ const styles = StyleSheet.create({
   cardLabel: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: tokens.fonts.labelSmall.size,
+    lineHeight: 18,
     letterSpacing: tokens.fonts.labelSmall.letterSpacing,
     textTransform: 'uppercase',
     color: tokens.colors.secondary,
@@ -132,6 +133,7 @@ const styles = StyleSheet.create({
   goalValue: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: tokens.fonts.displayLarge.size,
+    lineHeight: 36,
     letterSpacing: 0,
     color: tokens.colors.text,
   },

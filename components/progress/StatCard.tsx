@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: tokens.fonts.labelSmall.size,
+    lineHeight: 18,
     letterSpacing: tokens.fonts.labelSmall.letterSpacing,
     textTransform: 'uppercase',
     color: tokens.colors.secondary,
@@ -42,6 +43,7 @@ const styles = StyleSheet.create({
   value: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: tokens.fonts.displayMedium.size,
+    lineHeight: 31,
     letterSpacing: 0,
     color: tokens.colors.text,
   },
@@ -49,6 +51,7 @@ const styles = StyleSheet.create({
   sublabel: {
     fontFamily: tokens.fonts.bodySmall.family,
     fontSize: tokens.fonts.labelSmall.size,
+    lineHeight: 18,
     color: tokens.colors.secondary,
   },
 });

@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
   count: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: tokens.fonts.displayLarge.size,
+    lineHeight: 36,
     color: tokens.colors.text,
     letterSpacing: 0,
   },
@@ -112,6 +113,7 @@ const styles = StyleSheet.create({
   label: {
     fontFamily: tokens.fonts.bodyLarge.family,
     fontSize: tokens.fonts.labelSmall.size,
+    lineHeight: 18,
     color: tokens.colors.secondary,
     letterSpacing: 0,
   },

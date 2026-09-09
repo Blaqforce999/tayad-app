@@ -141,10 +141,12 @@ const styles = StyleSheet.create({
     paddingVertical: tokens.spacing.lg,
     ...tokens.shadows.card,
   },
-  // Figma: Instrument Serif 56.
+  // Figma: Instrument Serif 56. Explicit line box so MIUI renders it filled,
+  // not stroked.
   bigTime: {
     fontFamily: tokens.fonts.heroMobile.family,
     fontSize: 56,
+    lineHeight: 64,
     letterSpacing: -1.12,
     color: tokens.colors.text,
   },
@@ -152,6 +154,7 @@ const styles = StyleSheet.create({
   period: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: tokens.fonts.labelButton.size,
+    lineHeight: 22,
     letterSpacing: 0.96,
     color: tokens.colors.textMuted,
   },
@@ -176,6 +179,7 @@ const styles = StyleSheet.create({
   chipLabel: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: tokens.fonts.labelSmall.size,
+    lineHeight: 18,
     letterSpacing: 0,
   },
   preview: {
@@ -185,6 +189,7 @@ const styles = StyleSheet.create({
   previewLabel: {
     fontFamily: tokens.fonts.labelButton.family,
     fontSize: 10,
+    lineHeight: 14,
     letterSpacing: 1,
     color: tokens.colors.textMuted,
   },
@@ -201,12 +206,14 @@ const styles = StyleSheet.create({
   notifTitle: {
     fontFamily: tokens.fonts.labelSmall.family,
     fontSize: tokens.fonts.bodySmall.size,
+    lineHeight: 20,
     color: tokens.colors.text,
   },
   // Figma: Manrope Regular 14, muted.
   notifBody: {
     fontFamily: tokens.fonts.bodySmall.family,
     fontSize: tokens.fonts.bodySmall.size,
+    lineHeight: 20,
     color: tokens.colors.secondary,
   },
   footer: {
@@ -223,6 +230,7 @@ const styles = StyleSheet.create({
   skipLabel: {
     fontFamily: tokens.fonts.labelSmall.family,
     fontSize: tokens.fonts.bodySmall.size,
+    lineHeight: 20,
     color: tokens.colors.textMuted,
   },
 });
