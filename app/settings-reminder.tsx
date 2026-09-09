@@ -7,6 +7,7 @@ import { Screen } from '@/components/shared/Screen';
 import { BackHeader } from '@/components/shared/BackHeader';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
+import { scheduleReadingReminder } from '@/lib/notifications';
 import {
   REMINDER_OPTIONS,
   fetchProfile,
@@ -31,7 +32,13 @@ export default function SettingsReminderScreen() {
     setIsSaving(true);
     try {
       await updateNotificationTime(time);
-      // Notification *scheduling* is wired with the Edge Functions pass.
+      const outcome = await scheduleReadingReminder(time);
+      setIsSaving(false);
+      if (outcome === 'permission-denied') {
+        // Time is saved; the reminder just can't fire. Explain why.
+        router.replace('/status?kind=notifications');
+        return;
+      }
       router.back();
     } catch {
       setIsSaving(false);
