@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { TextArea } from '@/components/ui/TextArea';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { matchBooks } from '@/lib/ai';
+import { clearClarifyProblem, setClarifyProblem } from '@/lib/clarify-store';
 import { detectCrisis } from '@/lib/crisis';
 import { saveRecommendation } from '@/lib/plans';
 import { setRecommendationSession } from '@/lib/session-store';
@@ -47,6 +48,7 @@ export default function ProblemScreen() {
     // Crisis screening happens on-device, before anything is sent or stored.
     if (detectCrisis(problem).isCrisis) {
       setText('');
+      clearClarifyProblem();
       router.push('/crisis');
       return;
     }
@@ -57,7 +59,9 @@ export default function ProblemScreen() {
 
       if (result.kind === 'clarify') {
         setIsThinking(false);
-        router.push({ pathname: '/clarifying', params: { problem, question: result.question } });
+        // The problem text goes through the in-memory store, not a route param.
+        setClarifyProblem(problem);
+        router.push({ pathname: '/clarifying', params: { question: result.question } });
         return;
       }
 

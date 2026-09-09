@@ -48,6 +48,14 @@ export function TextArea({
           accessibilityLabel={label}
           multiline
           textAlignVertical="top"
+          // These fields hold the user's private words (and are where crisis text
+          // is typed before screening). Keep the OS keyboard from learning,
+          // autocompleting, or spell-checking it off-device. (.agents/rules/security.md)
+          autoCorrect={false}
+          spellCheck={false}
+          autoComplete="off"
+          textContentType="none"
+          keyboardType="default"
           onFocus={(event) => {
             setIsFocused(true);
             onFocus?.(event);

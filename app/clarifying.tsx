@@ -8,15 +8,18 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { TextArea } from '@/components/ui/TextArea';
 import { matchBooks } from '@/lib/ai';
+import { clearClarifyProblem, getClarifyProblem } from '@/lib/clarify-store';
 import { detectCrisis } from '@/lib/crisis';
 import { saveRecommendation } from '@/lib/plans';
 import { setRecommendationSession } from '@/lib/session-store';
 import { tokens } from '@/lib/tokens';
 
-// Reached when the matcher needs more context. The original problem text comes
-// in as a param; this adds to it and re-runs the match.
+// Reached when the matcher needs more context. The original problem text is held
+// in the in-memory clarify store (not a route param); this adds to it and
+// re-runs the match.
 export default function ClarifyingScreen() {
-  const { problem, question } = useLocalSearchParams<{ problem?: string; question?: string }>();
+  const { question } = useLocalSearchParams<{ question?: string }>();
+  const problem = getClarifyProblem();
   const [extra, setExtra] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -27,6 +30,7 @@ export default function ClarifyingScreen() {
   const handleSubmit = async () => {
     const combined = `${problem}\n\n${extra.trim()}`.trim();
     if (detectCrisis(combined).isCrisis) {
+      clearClarifyProblem();
       router.replace('/crisis');
       return;
     }
@@ -51,6 +55,7 @@ export default function ClarifyingScreen() {
         recommendationId,
         picks: result.picks,
       });
+      clearClarifyProblem();
       router.replace('/recommendation');
     } catch {
       setIsSubmitting(false);

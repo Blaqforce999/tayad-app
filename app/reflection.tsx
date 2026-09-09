@@ -85,6 +85,7 @@ export default function ReflectionScreen() {
             onChangeText={setText}
             placeholder="Write what came up..."
             helperText="Share what's on your mind. Be specific."
+            maxLength={2000}
           />
 
           <Button label="Save reflection" onPress={handleSave} loading={isSaving} />

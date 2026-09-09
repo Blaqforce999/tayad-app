@@ -22,11 +22,6 @@ export async function queueReflection(planId: string, text: string): Promise<voi
   await AsyncStorage.setItem(REFLECTION_KEY, JSON.stringify(payload));
 }
 
-export async function hasPendingWrites(): Promise<boolean> {
-  const [checkIn, reflection] = await AsyncStorage.multiGet([CHECK_IN_KEY, REFLECTION_KEY]);
-  return checkIn[1] !== null || reflection[1] !== null;
-}
-
 // Best effort. Returns true if anything was flushed, so the caller can refresh.
 // The check-in goes first: a reflection attaches to the log it creates.
 export async function flushPending(): Promise<boolean> {

@@ -5,6 +5,11 @@ import { todayDateString } from './streak';
 import { supabase } from './supabase';
 import type { BookSources, Recommendation } from './types';
 
+// Hard cap on stored reflection length, matched by the input field's maxLength.
+// The DB column is plain text; this keeps a direct API call from storing a
+// runaway blob in the user's own row.
+const REFLECTION_MAX = 2000;
+
 // ---------------------------------------------------------------------------
 // Types (kept close to use; DB rows are snake_case)
 // ---------------------------------------------------------------------------
@@ -219,7 +224,7 @@ export async function checkInToday(input: {
       plan_id: input.planId,
       log_date: todayDateString(),
       pages_read: input.pagesRead,
-      reflection: input.reflection ?? null,
+      reflection: input.reflection ? input.reflection.slice(0, REFLECTION_MAX) : null,
       completed: true,
     },
     { onConflict: 'plan_id,log_date' },
@@ -234,7 +239,7 @@ export async function checkInToday(input: {
 export async function attachReflection(planId: string, reflection: string): Promise<void> {
   const { error } = await supabase
     .from('daily_logs')
-    .update({ reflection })
+    .update({ reflection: reflection.slice(0, REFLECTION_MAX) })
     .eq('plan_id', planId)
     .eq('log_date', todayDateString());
 

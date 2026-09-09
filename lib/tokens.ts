@@ -15,9 +15,6 @@ export const tokens = {
     surfaceRaised: '#FFFFFF',
     divider: '#EFE8E0',
     shadow: '#3B2F24',
-    // amber-50 primitive from tokens.css. Design system says avoid primitives in
-    // UI, but the Figma nav surface has no semantic token — used only there.
-    navSurface: '#FAF8F5',
   },
 
   spacing: {
@@ -29,7 +26,6 @@ export const tokens = {
     lg: 24,
     xl: 32,
     xxl: 48,
-    xxxl: 64,
   },
 
   radii: {
