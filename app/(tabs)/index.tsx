@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/Button';
 import { hasForgivenessAvailable } from '@/lib/streak';
 import { daysRemaining, pageRangeForDay, pagesRemaining } from '@/lib/plan';
 import { checkInToday, completePlan } from '@/lib/plans';
-import { flushPendingCheckIn, queueCheckIn } from '@/lib/offline';
+import { flushPending, queueCheckIn } from '@/lib/offline';
 import { recordStreakCheckIn } from '@/lib/streaks';
 import { setCompletion } from '@/lib/completion-store';
 import { setReflectionContext } from '@/lib/reflection-store';
@@ -37,7 +37,7 @@ export default function HomeScreen() {
       if (!isOnline) {
         return;
       }
-      flushPendingCheckIn().then((flushed) => {
+      flushPending().then((flushed) => {
         if (flushed) {
           void refresh();
           void refreshStreak();
@@ -174,7 +174,7 @@ export default function HomeScreen() {
 
         <Pressable
           style={styles.updateRow}
-          onPress={() => Alert.alert('Coming soon', 'Setting an exact page number is on the way.')}
+          onPress={() => router.push('/update-pages')}
           accessibilityRole="button"
         >
           <Ionicons name="pencil" size={14} color={tokens.colors.secondary} />

@@ -8,14 +8,18 @@ import { SectionIntro } from '@/components/shared/SectionIntro';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { TextArea } from '@/components/ui/TextArea';
+import { queueReflection } from '@/lib/offline';
 import { attachReflection } from '@/lib/plans';
 import { clearReflectionContext, getReflectionContext } from '@/lib/reflection-store';
+
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { tokens } from '@/lib/tokens';
 
 export default function ReflectionScreen() {
   const context = getReflectionContext();
   const [text, setText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const { isOnline } = useNetworkStatus();
 
   if (!context) {
     return <Redirect href="/" />;
@@ -32,10 +36,21 @@ export default function ReflectionScreen() {
       return;
     }
     setIsSaving(true);
+
+    // Offline: hold it and attach when connectivity returns.
+    if (!isOnline) {
+      await queueReflection(context.planId, text.trim());
+      setIsSaving(false);
+      finish();
+      return;
+    }
+
     try {
       // Adds to today's already-completed log without touching pages_read.
       await attachReflection(context.planId, text.trim());
     } catch {
+      // Network hiccup rather than being offline — queue it rather than lose it.
+      await queueReflection(context.planId, text.trim());
       // The check-in itself already saved; a reflection failure is non-blocking.
     } finally {
       setIsSaving(false);

@@ -28,6 +28,10 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     // No URL-based session detection on native; sessions come from secure storage.
     detectSessionInUrl: false,
+    // PKCE puts a `code` in the query string of email links, which Expo Router
+    // can read as a route param. The implicit flow uses a URL fragment, which
+    // native deep links drop.
+    flowType: 'pkce',
   },
 });
 

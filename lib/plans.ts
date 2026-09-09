@@ -253,3 +253,43 @@ export async function completePlan(planId: string): Promise<void> {
     throw error;
   }
 }
+
+// Sets today's page number exactly, rather than assuming a full daily goal was
+// read. Upserts today's log so it works whether or not they checked in already.
+export async function setPagesRead(planId: string, pagesRead: number): Promise<void> {
+  const { data: user } = await supabase.auth.getUser();
+  const userId = user.user?.id;
+  if (!userId) {
+    throw new Error('Not signed in.');
+  }
+
+  const { error } = await supabase.from('daily_logs').upsert(
+    {
+      user_id: userId,
+      plan_id: planId,
+      log_date: todayDateString(),
+      pages_read: pagesRead,
+    },
+    { onConflict: 'plan_id,log_date' },
+  );
+
+  if (error) {
+    throw error;
+  }
+}
+
+// Changes the daily goal on an active plan and re-derives how many days are left.
+export async function updateDailyPages(
+  planId: string,
+  dailyPages: number,
+  totalPages: number,
+): Promise<void> {
+  const { error } = await supabase
+    .from('reading_plans')
+    .update({ daily_pages: dailyPages, target_days: planTotalDays(totalPages, dailyPages) })
+    .eq('id', planId);
+
+  if (error) {
+    throw error;
+  }
+}

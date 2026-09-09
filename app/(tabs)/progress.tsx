@@ -8,11 +8,12 @@ import Svg, { Circle } from 'react-native-svg';
 import { ProgressBar } from '@/components/reading/ProgressBar';
 import { StreakBadge } from '@/components/reading/StreakBadge';
 import { StatCard } from '@/components/progress/StatCard';
+import { TrendChart } from '@/components/progress/TrendChart';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { Screen } from '@/components/shared/Screen';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
-import { fetchBooksFinished, fetchWeekTrend } from '@/lib/progress';
+import { fetchBooksFinished, fetchDailySeries, fetchWeekTrend } from '@/lib/progress';
 import { tokens } from '@/lib/tokens';
 
 import { usePlan } from '@/hooks/usePlan';
@@ -23,6 +24,7 @@ export default function ProgressScreen() {
   const { streak } = useStreak();
   const [booksFinished, setBooksFinished] = useState(0);
   const [trend, setTrend] = useState<number | null>(null);
+  const [series, setSeries] = useState<number[]>([]);
 
   useFocusEffect(
     useCallback(() => {
@@ -32,6 +34,9 @@ export default function ProgressScreen() {
         .catch(() => undefined);
       fetchWeekTrend(plan?.dailyPages ?? 15)
         .then((value) => active && setTrend(value))
+        .catch(() => undefined);
+      fetchDailySeries()
+        .then((values) => active && setSeries(values))
         .catch(() => undefined);
       return () => {
         active = false;
@@ -139,6 +144,7 @@ export default function ProgressScreen() {
               </AppText>
             )}
           </View>
+          {series.length > 0 ? <TrendChart data={series} /> : null}
           <AppText variant="labelSmall" color={tokens.colors.secondary}>
             Pages read this week vs last week
           </AppText>

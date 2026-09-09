@@ -57,6 +57,7 @@ function RootStack() {
       <Stack.Screen name="sign-up" />
       <Stack.Screen name="forgot-password" />
       <Stack.Screen name="onboarding" />
+      <Stack.Screen name="reset-password" />
       <Stack.Screen name="problem" />
       <Stack.Screen name="clarifying" />
       <Stack.Screen name="recommendation" />
@@ -66,6 +67,8 @@ function RootStack() {
       />
       <Stack.Screen name="book/[id]" />
       <Stack.Screen name="plan-setup" />
+      <Stack.Screen name="update-pages" />
+      <Stack.Screen name="daily-goal" />
       <Stack.Screen name="reflection" />
       <Stack.Screen name="completion" />
       <Stack.Screen name="reading-history" />

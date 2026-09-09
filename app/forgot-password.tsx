@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
+import * as Linking from 'expo-linking';
 import { Redirect, router } from 'expo-router';
 
 import { Screen } from '@/components/shared/Screen';
@@ -17,6 +18,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Wordmark } from '@/components/ui/Wordmark';
 import { useAuth } from '@/hooks/useAuth';
+import { sendPasswordReset } from '@/lib/auth';
 import { tokens } from '@/lib/tokens';
 
 export default function ForgotPasswordScreen() {
@@ -29,12 +31,16 @@ export default function ForgotPasswordScreen() {
     return <Redirect href="/" />;
   }
 
-  // The reset email itself is wired in a later pass (needs a deep-link redirect).
   const handleSubmit = async () => {
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    setIsSubmitting(false);
-    setSent(true);
+    try {
+      await sendPasswordReset(email.trim(), Linking.createURL('/reset-password'));
+    } catch {
+      // Deliberately silent: never reveal whether an address has an account.
+    } finally {
+      setIsSubmitting(false);
+      setSent(true);
+    }
   };
 
   return (

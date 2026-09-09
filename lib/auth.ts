@@ -54,3 +54,26 @@ export function toAuthUser(user: { id: string; email?: string } | null | undefin
 
   return { id: user.id, email: user.email };
 }
+
+// Sends the password-reset email. The link deep-links back into the app at
+// /reset-password with a `code` we exchange for a short-lived session.
+export async function sendPasswordReset(email: string, redirectTo: string): Promise<void> {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+
+  if (error) {
+    throw error;
+  }
+}
+
+// Completes a reset: trades the emailed code for a session, then sets the password.
+export async function completePasswordReset(code: string, password: string): Promise<void> {
+  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+  if (exchangeError) {
+    throw exchangeError;
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    throw error;
+  }
+}

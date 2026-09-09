@@ -125,3 +125,42 @@ export function formatShortDate(iso: string | null): string {
   }
   return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
 }
+
+// Pages actually read on each of the last `days` calendar days.
+// daily_logs.pages_read is cumulative per plan, so a day's reading is the delta
+// from that plan's previous log. Days with no log contribute 0.
+export async function fetchDailySeries(days = 14): Promise<number[]> {
+  const { data, error } = await supabase
+    .from('daily_logs')
+    .select('plan_id, log_date, pages_read')
+    .order('plan_id', { ascending: true })
+    .order('log_date', { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  const byDate = new Map<string, number>();
+  const previousForPlan = new Map<string, number>();
+
+  for (const row of data ?? []) {
+    const planId = row.plan_id as string;
+    const date = row.log_date as string;
+    const cumulative = (row.pages_read as number) ?? 0;
+    const previous = previousForPlan.get(planId) ?? 0;
+    const readThatDay = Math.max(cumulative - previous, 0);
+    previousForPlan.set(planId, Math.max(cumulative, previous));
+    byDate.set(date, (byDate.get(date) ?? 0) + readThatDay);
+  }
+
+  const today = new Date(todayDateString());
+  const series: number[] = [];
+  for (let offset = days - 1; offset >= 0; offset -= 1) {
+    const day = new Date(today);
+    day.setDate(day.getDate() - offset);
+    const key = day.toISOString().slice(0, 10);
+    series.push(byDate.get(key) ?? 0);
+  }
+
+  return series;
+}

@@ -42,10 +42,12 @@ export default function SettingsScreen() {
               title="Daily page goal"
               subtitle={plan ? `${plan.dailyPages} pages a day` : 'Set when you start a plan'}
               onPress={() =>
-                Alert.alert(
-                  'Daily page goal',
-                  'Your goal is set when you start a reading plan. Editing an active plan is coming soon.',
-                )
+                plan
+                  ? router.push('/daily-goal')
+                  : Alert.alert(
+                      'No active plan',
+                      'Start a reading plan and your daily goal will live here.',
+                    )
               }
             />
             <SettingsRow
